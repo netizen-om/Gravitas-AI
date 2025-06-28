@@ -26,7 +26,6 @@ export default function Signup() {
       router.push("/api/auth/signin"); // redirect to login
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-700">

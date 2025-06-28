@@ -7,7 +7,6 @@ function page() {
     <div>page
       <Appbar/>
     </div>
-    
   )
 }
 
