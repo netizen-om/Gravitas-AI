@@ -24,43 +24,58 @@ const handler = NextAuth({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+
+        
+        
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password required")
         }
-
+        
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
-
+        
         if (!user || !user.hashedPassword) {
           throw new Error("No user found")
         }
-
+        
         const isValid = await bcrypt.compare(credentials.password, user.hashedPassword)
-
+        
         if (!isValid) {
           throw new Error("Invalid password")
         }
-
+        
+        console.log("Heyyy");
+        console.log(user);
+        
         return user
       },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id
+    // ⬇ Inject user.id into JWT token
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+
+    // ⬇ Inject token.id into session.user.id
+    async session({ session, token }) {
+      if (session.user && token?.id) {
+        session.user.id = token.id as string
       }
       return session
-    }
-  }
+    },
+  },
 })
 
 export { handler as GET, handler as POST }
