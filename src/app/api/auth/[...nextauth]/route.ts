@@ -53,16 +53,13 @@ const handler = NextAuth({
   session: {
     strategy: "database",
   },
-  // callbacks: {
-  //   async session({ session, user }) {
-  //     if (session.user) {
-  //       session.user.
-  //     }
-  //     return session
-  //   }
-  // },
-  pages: {
-    signIn: "/auth/signin",
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id
+      }
+      return session
+    }
   }
 })
 

@@ -1,9 +1,14 @@
-"use client";
-import { signIn, signOut } from "next-auth/react"
+"use client"
+import React from 'react'
+import { Appbar } from './components/Appbar'
 
-export const Appbar = () => {
-    return <div>
-    <button onClick={() => signIn()}>Signin</button>
-    <button onClick={() => signOut()}>Sign out</button>
-  </div>
+function page() {
+  return (
+    <div>page
+      <Appbar/>
+    </div>
+    
+  )
 }
+
+export default page
