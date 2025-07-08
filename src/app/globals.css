@@ -196,7 +196,7 @@
   .card-border {
     background: linear-gradient(to bottom, #4b4d4f, #4b4d4f33);
     padding: 0.125rem;
-    border-radius: 1rem;
+    border-radius: 1rem;  
     width: fit-content;
   }
   
