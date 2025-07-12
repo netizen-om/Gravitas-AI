@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,14 +8,15 @@ datasource db {
 }
 
 model User {
-  userid            String    @id @default(cuid())
+  userId        String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  accounts      Account[]
-  sessions      Session[]
-  Password String?
+  password      String?
+
+  accounts   Account[]
+  interviews Interview[]
 }
 
 model Account {
@@ -38,19 +33,53 @@ model Account {
   id_token          String?
   session_state     String?
 
-  user User @relation(fields: [userId], references: [userid])
+  user User @relation(fields: [userId], references: [userId])
 
   @@unique([provider, providerAccountId])
 }
 
 model Interview {
-  id              String      @id @default(uuid())
-  user            User        @relation(fields: [userId], references: [userid])
-  userId          String
-  role            String
-  level           String
-  techstack       String
-  type            String
-  createdAt       DateTime    @default(now())
-  status          String      @default("pending")
+  interviewId String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [userId])
+  userId      String
+  role        String
+  level       String
+  techstack   String
+  type        String
+  createdAt   DateTime @default(now())
+  status      String   @default("pending")
+
+  questions Question[]
+  feedback  Feedback?
+  audio     Interview_audio?
+}
+
+model Question {
+  questionId   String    @id @default(uuid())
+  interview    Interview @relation(fields: [interviewId], references: [interviewId])
+  interviewId  String
+  questionText String
+  answer       String?
+  score        Int?
+  feedback     String?
+}
+
+model Feedback {
+  feedbackId       String    @id @default(uuid())
+  interview        Interview @relation(fields: [interviewId], references: [interviewId])
+  interviewId      String    @unique
+  summary          String
+  improvementAreas String[]
+  confidenceScore  Int
+}
+
+model Interview_audio {
+  audioId     String    @id @default(uuid())
+  interview   Interview @relation(fields: [interviewId], references: [interviewId])
+  interviewId String    @unique
+
+  startTime  DateTime
+  endTime    DateTime
+  transcript String[]
+  audioUrl   String
 }
