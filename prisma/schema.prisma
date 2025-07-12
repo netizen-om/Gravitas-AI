@@ -44,11 +44,13 @@ model Interview {
   user        User     @relation(fields: [userId], references: [id]) // changed to reference id
   role        String
   level       String
+  amount      Int
   techstack   String
   type        String
   createdAt   DateTime @default(now())
   status      String   @default("pending")
-
+  questionArray String[]
+  
   questions Question[]
   feedback  Feedback?
   audio     Interview_audio?

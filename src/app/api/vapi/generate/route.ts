@@ -1,6 +1,7 @@
 import { generateText } from "ai"
 import { google } from "@ai-sdk/google"
 import { getRandomInterviewCover } from "@/lib/utils";
+import { prisma } from "@/lib/prismadb";
 
 export async function   GET() {
     return Response.json(
@@ -30,15 +31,31 @@ export async function POST(req : Request) {
         `,
     });
 
-    const interview = {
-        role, level, type,
-        techstack : techstack.split(','),
-        questions : JSON.parse(questions),
-        userid,
-        finalized : true,
-        coverImage : getRandomInterviewCover(),
-        createdAt : new Date().toISOString()
-    }
+    // const interview = {
+    //     role, level, type,
+    //     techstack : techstack.split(','),
+    //     questions : JSON.parse(questions),
+    //     userid,
+    //     finalized : true,
+    //     coverImage : getRandomInterviewCover(),
+    //     createdAt : new Date().toISOString()
+    // }
+
+    const createdInterview = await prisma.interview.create({
+       data: {
+            role,
+            level,
+            type,
+            amount,
+            techstack,       
+            questions: JSON.parse(questions),      
+            createdAt: new Date(),                 
+            userId : userid
+        },
+    })
+
+    return Response.json({ success: true, data: createdInterview }, { status: 201 });
+
 
     } catch (error) {
         console.error(error)
