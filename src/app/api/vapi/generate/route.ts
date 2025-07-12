@@ -53,9 +53,8 @@ export async function POST(req : Request) {
             userId : userid
         },
     })
-
+    
     return Response.json({ success: true, data: createdInterview }, { status: 201 });
-
 
     } catch (error) {
         console.error(error)
