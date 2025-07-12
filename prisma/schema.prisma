@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  userId        String    @id @default(cuid())
+  id            String    @id @default(cuid()) // changed from userId
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -33,15 +33,15 @@ model Account {
   id_token          String?
   session_state     String?
 
-  user User @relation(fields: [userId], references: [userId])
+  user User @relation(fields: [userId], references: [id]) // changed to reference id
 
   @@unique([provider, providerAccountId])
 }
 
 model Interview {
   interviewId String   @id @default(uuid())
-  user        User     @relation(fields: [userId], references: [userId])
   userId      String
+  user        User     @relation(fields: [userId], references: [id]) // changed to reference id
   role        String
   level       String
   techstack   String
@@ -56,8 +56,8 @@ model Interview {
 
 model Question {
   questionId   String    @id @default(uuid())
-  interview    Interview @relation(fields: [interviewId], references: [interviewId])
   interviewId  String
+  interview    Interview @relation(fields: [interviewId], references: [interviewId])
   questionText String
   answer       String?
   score        Int?
@@ -66,8 +66,8 @@ model Question {
 
 model Feedback {
   feedbackId       String    @id @default(uuid())
-  interview        Interview @relation(fields: [interviewId], references: [interviewId])
   interviewId      String    @unique
+  interview        Interview @relation(fields: [interviewId], references: [interviewId])
   summary          String
   improvementAreas String[]
   confidenceScore  Int
@@ -75,8 +75,8 @@ model Feedback {
 
 model Interview_audio {
   audioId     String    @id @default(uuid())
-  interview   Interview @relation(fields: [interviewId], references: [interviewId])
   interviewId String    @unique
+  interview   Interview @relation(fields: [interviewId], references: [interviewId])
 
   startTime  DateTime
   endTime    DateTime

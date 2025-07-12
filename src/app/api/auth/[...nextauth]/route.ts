@@ -38,11 +38,11 @@ const handler = NextAuth({
           where: { email: credentials.email },
         })
         
-        if (!user || !user.hashedPassword) {
+        if (!user || !user.password) {
           throw new Error("No user found")
         }
         
-        const isValid = await bcrypt.compare(credentials.password, user.hashedPassword)
+        const isValid = await bcrypt.compare(credentials.password, user.password)
         
         if (!isValid) {
           throw new Error("Invalid password")
@@ -71,6 +71,7 @@ const handler = NextAuth({
     // ⬇ Inject token.id into session.user.id
     async session({ session, token }) {
       if (session.user && token?.id) {
+        //@ts-ignore
         session.user.id = token.id as string
       }
       return session
