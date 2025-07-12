@@ -48,7 +48,7 @@ export async function POST(req : Request) {
             type,
             amount,
             techstack,       
-            questions: JSON.parse(questions),      
+            questionArray: JSON.parse(questions),      
             createdAt: new Date(),                 
             userId : userid
         },
