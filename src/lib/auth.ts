@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import { NextAuthOptions } from "next-auth"
+import { getServerSession, NextAuthOptions } from "next-auth"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -49,10 +49,19 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user && token?.id) {
-        // @ts-ignore
         session.user.id = token.id as string;  
       }
       return session;
     },
   },
+};
+
+export const getCurrentUser = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return null; // ❌ Don't return a Response object here
+  }
+
+  return session.user; // or just session.user.id if you only want ID
 };
