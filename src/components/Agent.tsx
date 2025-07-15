@@ -1,7 +1,9 @@
-import { Span, } from 'next/dist/trace';
+"use client"
+
 import React from 'react'
 import Image from "next/image";
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 enum CallStatus {
     INACTIVE = "INACTIVE",
@@ -10,7 +12,11 @@ enum CallStatus {
     FINISHED = "FINISHED"
 }
 
-const Agent = ({userName} : AgentProps) => {
+const Agent = ({userName, userId, type} : AgentProps) => {
+
+    const router = useRouter();
+    
+
     const callStatus = CallStatus.INACTIVE
     const isSpeaking = true;
     const messages = [
