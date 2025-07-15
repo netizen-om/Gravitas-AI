@@ -48,9 +48,6 @@ const handler = NextAuth({
           throw new Error("Invalid password")
         }
         
-        console.log("Heyyy");
-        console.log(user);
-        
         return user
       },
     }),
