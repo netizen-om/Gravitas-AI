@@ -1,15 +1,16 @@
+'use client'
 import Agent from '@/components/Agent'
-import { getCurrentUser } from '@/lib/auth'
+import { useSession } from 'next-auth/react'
 import React from 'react'
 
-async function page() {
+function page() {
 
-  const user = await getCurrentUser()
+  const { data: session, status } = useSession()
 
   return (
     <>
         <h1>Interview Generation</h1>
-        <Agent usenname={user?.name} userId={user?.id} type="generate"/>
+        <Agent userName={session?.user.name!} userId={session?.user.id} type="generate"/>
     </>
   )
 }

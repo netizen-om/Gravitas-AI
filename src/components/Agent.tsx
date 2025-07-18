@@ -1,5 +1,4 @@
 "use client"
-
 import React, { useEffect, useState } from 'react'
 import Image from "next/image";
 import { cn } from '@/lib/utils';
@@ -48,7 +47,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
         vapi.on("call-end", onCallEnd);
         vapi.on("message", onMessage);
         vapi.on("speech-start", onSpeechStart);
-        vapi.on("speech-end", onCallEnd);
+        vapi.on("speech-end", onSpeechEnd);
         vapi.on("error", onError);
 
         return () => {
@@ -56,7 +55,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
           vapi.off("call-end", onCallEnd);
           vapi.off("message", onMessage);
           vapi.off("speech-start", onSpeechStart);
-          vapi.off("speech-end", onCallEnd);
+          vapi.off("speech-end", onSpeechEnd);
           vapi.off("error", onError);
         }
 
@@ -82,7 +81,7 @@ const Agent = ({userName, userId, type} : AgentProps) => {
         vapi.stop()
     }
 
-    const latestMessage = messages[messages.length - 1].content;
+    const latestMessage = messages[messages.length - 1]?.content;
     const isCallInactiveOrFinished = callStatus === CallStatus.INACTIVE || CallStatus.FINISHED
 
   return (

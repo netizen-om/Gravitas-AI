@@ -60,8 +60,8 @@ export const getCurrentUser = async () => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return null; // ❌ Don't return a Response object here
+    return null;
   }
 
-  return session.user; // or just session.user.id if you only want ID
+  return session.user;
 };
