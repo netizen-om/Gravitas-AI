@@ -2,10 +2,18 @@
 import * as React from "react";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { z } from "zod";
 
 interface SignupFormProps {
   className?: string;
 }
+
+// Zod schema for validation
+const signupSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export default function Signup({ className = "" }: SignupFormProps) {
   const [email, setEmail] = useState("");
@@ -16,60 +24,41 @@ export default function Signup({ className = "" }: SignupFormProps) {
     password: "",
   });
 
-  function validateEmail(email: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Email is required";
-    if (!emailRegex.test(email)) return "Please enter a valid email address";
-    return "";
-  }
-
-  function validatePassword(password: string) {
-    if (!password) return "Password is required";
-    if (password.length < 8) return "Password must be at least 8 characters";
-    return "";
-  }
-
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
     setEmail(value);
+    const result = signupSchema.safeParse({ email: value, password });
     setErrors(prev => ({
       ...prev,
-      email: validateEmail(value)
+      email: result.success ? "" : result.error.formErrors.fieldErrors.email?.[0] || ""
     }));
   }
 
   function handlePasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
     setPassword(value);
+    const result = signupSchema.safeParse({ email, password: value });
     setErrors(prev => ({
       ...prev,
-      password: validatePassword(value)
+      password: result.success ? "" : result.error.formErrors.fieldErrors.password?.[0] || ""
     }));
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
-
+    const result = signupSchema.safeParse({ email, password });
     setErrors({
-      email: emailError,
-      password: passwordError,
+      email: result.success ? "" : result.error.formErrors.fieldErrors.email?.[0] || "",
+      password: result.success ? "" : result.error.formErrors.fieldErrors.password?.[0] || "",
     });
-
-    if (emailError || passwordError) return;
-
+    if (!result.success) return;
     setIsLoading(true);
     try {
       // Simulate API call for account creation
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Account created:", {
-        email: email,
-        password: password,
-      });
       // Handle successful signup
     } catch (error) {
-      console.error("Signup failed:", error);
+      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -89,16 +78,16 @@ export default function Signup({ className = "" }: SignupFormProps) {
 
   return (
     <div className={`bg-black min-h-screen ${className}`}>
-      <div className="flex overflow-x-auto overflow-y-auto justify-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
+      <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
         <div className="fixed inset-0 z-0 pointer-events-none select-none h-[872px] w-[1536px]">
           <img
-            src="https://resend.com/_next/image?url=%2Fstatic%2Fbackground-auth.jpg&w=1920&q=100"
+            src="/bgImg/background-auth.webp"
             alt="Background Image"
             className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
           />
         </div>
 
-        <a
+        <Link
           href="/"
           className="flex absolute top-6 left-6 z-10 gap-0 gap-y-0 gap-y-0 justify-center items-center px-4 h-10 text-sm font-semibold leading-5 rounded-2xl border-solid ease-in-out cursor-pointer select-none border-[0.8px] border-black border-opacity-0 decoration-neutral-400 duration-[0.2s] outline-neutral-400 text-neutral-400 transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]"
         >
@@ -121,7 +110,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
             </svg>
           </span>
           Home
-        </a>
+        </Link>
 
         <main className="relative z-10 pt-8 w-full max-w-lg max-sm:pt-4 max-sm:max-w-full">
           <div className="mb-6 text-center">
@@ -181,12 +170,12 @@ export default function Signup({ className = "" }: SignupFormProps) {
             </h1>
             <span className="inline text-sm leading-5 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
               Already have an account?{" "}
-              <a
+              <Link
                 href="/login"
                 className="text-sm font-semibold leading-5 text-center ease-in-out cursor-pointer duration-[0.15s] transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to] text-white"
               >
                 Log in
-              </a>
+              </Link>
               .
             </span>
           </div>
@@ -349,7 +338,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
               }}
             >
               {isLoading ? "Creating Account..." : "Create Account"}
-            </button>
+            </button> 
           </form>
 
           <p className="mt-8 text-xs leading-4 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
