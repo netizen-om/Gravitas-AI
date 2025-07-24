@@ -4,6 +4,9 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { z } from "zod";
+import LeftArrow from "@/components/icons/LeftArrow";
+import GoogleLogo from "@/components/icons/GoogleLogo";
+import GithubLogo from "@/components/GithubLogo";
 
 interface SignupFormProps {
   className?: string;
@@ -70,7 +73,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
 
   async function handleGoogleSignIn() {
     await signIn('google');
-  }
+  } 
 
   async function handleGitHubSignIn() {
     await signIn('github');
@@ -91,29 +94,13 @@ export default function Signup({ className = "" }: SignupFormProps) {
           href="/"
           className="flex absolute top-6 left-6 z-10 gap-0 gap-y-0 gap-y-0 justify-center items-center px-4 h-10 text-sm font-semibold leading-5 rounded-2xl border-solid ease-in-out cursor-pointer select-none border-[0.8px] border-black border-opacity-0 decoration-neutral-400 duration-[0.2s] outline-neutral-400 text-neutral-400 transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]"
         >
-          <span className="-ml-2 text-sm font-semibold leading-5 cursor-pointer select-none border-zinc-500 decoration-zinc-500 outline-zinc-500 text-zinc-500">
-            <svg
-              fill="none"
-              height="24"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-              className="overflow-x-hidden overflow-y-hidden w-6 h-6 text-sm font-semibold leading-5 align-middle cursor-pointer select-none border-neutral-400 decoration-neutral-400 fill-none outline-neutral-400 text-neutral-400"
-            >
-              <path
-                d="M13.25 8.75L9.75 12L13.25 15.25"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-              />
-            </svg>
-          </span>
+          <LeftArrow />
           Home
         </Link>
 
         <main className="relative z-10 pt-8 w-full max-w-lg max-sm:pt-4 max-sm:max-w-full">
           <div className="mb-6 text-center">
+            {/* Resend Logo  */}
             <svg
               className="inline-block w-10"
               fill="none"
@@ -184,43 +171,10 @@ export default function Signup({ className = "" }: SignupFormProps) {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
+              className="group hover:bg-white/90 hover:text-black inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
             >
-              <svg
-                className="relative -left-2"
-                fill="none"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_829_635)">
-                  <path
-                    d="M19.8094 12.1497C19.8094 11.4942 19.7562 11.0158 19.6411 10.5198H12.1558V13.4784H16.5495C16.4609 14.2137 15.9826 15.321 14.9195 16.0651L14.9046 16.1641L17.2714 17.9976L17.4353 18.0139C18.9412 16.6232 19.8094 14.5769 19.8094 12.1497Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M12.1557 19.945C14.3083 19.945 16.1153 19.2363 17.4353 18.0139L14.9195 16.065C14.2463 16.5345 13.3427 16.8623 12.1557 16.8623C10.0474 16.8623 8.25806 15.4716 7.6202 13.5493L7.5267 13.5573L5.06575 15.4618L5.03357 15.5513C6.34459 18.1556 9.03754 19.945 12.1557 19.945Z"
-                    fill="currentColor"
-                    fillOpacity="0.6"
-                  />
-                  <path
-                    d="M7.62023 13.5494C7.45193 13.0533 7.35453 12.5218 7.35453 11.9726C7.35453 11.4233 7.45193 10.8918 7.61138 10.3958L7.60692 10.2901L5.11514 8.35498L5.03361 8.39376C4.49327 9.47449 4.18323 10.6881 4.18323 11.9726C4.18323 13.257 4.49327 14.4706 5.03361 15.5513L7.62023 13.5494Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M12.1557 7.08269C13.6527 7.08269 14.6626 7.72934 15.2384 8.26974L17.4884 6.07286C16.1065 4.7884 14.3083 4 12.1557 4C9.03754 4 6.34459 5.78937 5.03357 8.39371L7.61134 10.3957C8.25806 8.47347 10.0474 7.08269 12.1557 7.08269Z"
-                    fill="currentColor"
-                    fillOpacity="0.6"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_829_635">
-                    <rect fill="white" height="16" transform="translate(4 4)" width="16" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <span className="text-sm font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
+              <GoogleLogo />
+              <span className="text-sm group-hover:text-black font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
                 Login with Google
               </span>
             </button>
@@ -228,22 +182,10 @@ export default function Signup({ className = "" }: SignupFormProps) {
             <button
               type="button"
               onClick={handleGitHubSignIn}
-              className="inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
+              className="group hover:bg-white/90 hover:text-black inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
             >
-              <svg
-                className="relative -left-2"
-                fill="none"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 4C7.58267 4 4 7.67255 4 12.2022C4 15.8263 6.292 18.9007 9.47133 19.9855C9.87067 20.0614 10 19.8071 10 19.5911V18.0641C7.77467 18.5603 7.31133 17.0962 7.31133 17.0962C6.94733 16.1482 6.42267 15.896 6.42267 15.896C5.69667 15.3868 6.478 15.3977 6.478 15.3977C7.28133 15.4551 7.704 16.2432 7.704 16.2432C8.41733 17.4968 9.57533 17.1345 10.032 16.9247C10.1033 16.395 10.3107 16.0327 10.54 15.8283C8.76333 15.6198 6.89533 14.9165 6.89533 11.7744C6.89533 10.8783 7.208 10.1469 7.71933 9.57274C7.63667 9.36563 7.36267 8.53106 7.79733 7.40188C7.79733 7.40188 8.46933 7.18179 9.998 8.24261C10.636 8.06079 11.32 7.96989 12 7.96647C12.68 7.96989 13.3647 8.06079 14.004 8.24261C15.5313 7.18179 16.202 7.40188 16.202 7.40188C16.6373 8.53174 16.3633 9.36632 16.2807 9.57274C16.794 10.1469 17.104 10.8789 17.104 11.7744C17.104 14.9247 15.2327 15.6185 13.4513 15.8215C13.738 16.0758 14 16.5747 14 17.3403V19.5911C14 19.8091 14.128 20.0655 14.534 19.9848C17.7107 18.8987 20 15.8249 20 12.2022C20 7.67255 16.418 4 12 4Z"
-                  fill="currentColor"
-                />
-              </svg>
-              <span className="text-sm font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
+              <GithubLogo />
+              <span className="text-sm group-hover:text-black font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
                 Login with GitHub
               </span>
             </button>
@@ -265,7 +207,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
             />
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form autoComplete="off" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2 gap-2 gap-y-2 gap-y-2 mb-5">
               <label
                 htmlFor="email"
@@ -278,7 +220,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
                 placeholder="alan.turing@example.com"
                 id="email"
                 name="email"
-                className='relative px-4 w-full h-12 text-sm leading-5 text-white rounded-2xl border-solid ease-in-out cursor-text outline-white select-none backdrop-blur-[25px] bg-[0%_0%,0%_0%] bg-[auto,auto] bg-[url("https://resend.com/static/texture-btn.png"),linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] overflow-x-clip overflow-y-clip transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]'
+                className='relative px-4 w-full h-12 text-sm leading-5 focus:outline-gray-950 text-white cursor-textbackdrop-blur-[25px] bg-origin-border rounded-2xl border-solid ease-in-out outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]'
                 autoFocus
                 required
                 value={email}
@@ -303,7 +245,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
                 placeholder="••••••••••••"
                 id="password"
                 name="password"
-                className='relative px-4 w-full h-12 text-sm leading-5 text-white rounded-2xl border-solid ease-in-out cursor-text outline-white select-none backdrop-blur-[25px] bg-[0%_0%,0%_0%] bg-[auto,auto] bg-[url("https://resend.com/static/texture-btn.png"),linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] overflow-x-clip overflow-y-clip transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]'
+                className=' relative px-4 w-full h-12 text-sm leading-5 focus:outline-gray-950 text-white cursor-textbackdrop-blur-[25px] bg-origin-border rounded-2xl border-solid ease-in-out outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]'
                 required
                 value={password}
                 onChange={handlePasswordChange}
