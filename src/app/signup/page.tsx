@@ -101,7 +101,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
         <main className="relative z-10 pt-8 w-full max-w-lg max-sm:pt-4 max-sm:max-w-full">
           <div className="mb-6 text-center">
             {/* Resend Logo  */}
-            <svg
+            {/* <svg
               className="inline-block w-10"
               fill="none"
               viewBox="0 0 78 78"
@@ -150,10 +150,10 @@ export default function Signup({ className = "" }: SignupFormProps) {
                   <stop offset="1" stopColor="#ADADAD" />
                 </linearGradient>
               </defs>
-            </svg>
+            </svg> */}
 
             <h1 className="mt-6 text-3xl font-semibold tracking-tighter leading-9 text-center text-white">
-              Create a Resend Account
+              Create a Pravya Account
             </h1>
             <span className="inline text-sm leading-5 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
               Already have an account?{" "}
@@ -259,7 +259,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
 
             <button
               type="submit"
-              className="inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 text-sm font-semibold leading-5 text-center bg-origin-border rounded-2xl border-solid ease-in-out select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
+              className="group inline-flex hover:bg-white/90 hover:text-black relative gap-0 gap-y-0 justify-center items-center px-5 w-full h-12 text-sm font-semibold leading-5 text-center bg-origin-border rounded-2xl border-solid ease-in-out select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
               disabled={!isFormValid() || isLoading}
               style={{
                 color:
@@ -279,7 +279,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
                     : "oklab(0.999994 0.0000455678 0.0000200868 / 0.5)",
               }}
             >
-              {isLoading ? "Creating Account..." : "Create Account"}
+              <span className="group-hover:text-black">{isLoading ? "Creating Account..." : "Create Account"}</span>
             </button> 
           </form>
 
