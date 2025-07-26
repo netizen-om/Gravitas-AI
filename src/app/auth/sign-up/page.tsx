@@ -7,6 +7,7 @@ import { z } from "zod";
 import LeftArrow from "@/components/icons/LeftArrow";
 import GoogleLogo from "@/components/icons/GoogleLogo";
 import GithubLogo from "@/components/GithubLogo";
+import axios from "axios";
 
 interface SignupFormProps {
   className?: string;
@@ -58,10 +59,16 @@ export default function Signup({ className = "" }: SignupFormProps) {
     setIsLoading(true);
     try {
       // Simulate API call for account creation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Handle successful signup
+      
+      const res = await axios.post("/api/signup", {
+        email,
+        password,
+        name : "check123"
+      })
+
     } catch (error) {
-      // Handle error
+      console.error("Error SIGNUP : ", error);
+      
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +165,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
             <span className="inline text-sm leading-5 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
               Already have an account?{" "}
               <Link
-                href="/login"
+                href="/auth/aign-in"
                 className="text-sm font-semibold leading-5 text-center ease-in-out cursor-pointer duration-[0.15s] transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to] text-white"
               >
                 Log in
