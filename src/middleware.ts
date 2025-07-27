@@ -3,18 +3,36 @@ import { NextResponse } from "next/server";
 
 // Define public (unprotected) routes
 const PUBLIC_ROUTES = ["/", "/auth/sign-in", "/auth/sign-up"];
+const ONBOARDING_ROUTE = "/onboarding";
 
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
 
     // Allow requests to public routes
     if (PUBLIC_ROUTES.includes(pathname)) {
       return NextResponse.next();
     }
 
-    // Block other routes for unauthenticated users
-    // (withAuth will automatically handle redirection if user is unauthenticated)
+    // ✅ Block unverified users from all other routes
+    if (token && !token.emailVerified) {
+      // Allow access to onboarding
+      if (pathname === ONBOARDING_ROUTE) {
+        return NextResponse.next();
+      }
+
+      // Redirect all other routes to onboarding
+      return NextResponse.redirect(new URL(ONBOARDING_ROUTE, req.url));
+    }
+
+    // ✅ If user is verified and visits onboarding, redirect to dashboard
+    if (token && token.emailVerified && pathname === ONBOARDING_ROUTE) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // ✅ Allow access to all other routes if authenticated & verified
+    return NextResponse.next();
   },
   {
     callbacks: {
