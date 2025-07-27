@@ -3,12 +3,20 @@ import { NextResponse } from "next/server";
 
 // Define public (unprotected) routes
 const PUBLIC_ROUTES = ["/", "/auth/sign-in", "/auth/sign-up"];
-const ONBOARDING_ROUTE = "/onboarding";
+const ONBOARDING_ROUTE = "/auth/onboarding";
+const DASHBOARD_ROUTE = "/dashboard"
 
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
+
+    if (
+      token &&
+      (pathname === "/auth/sign-in" || pathname === "/auth/sign-up")
+    ) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
 
     // Allow requests to public routes
     if (PUBLIC_ROUTES.includes(pathname)) {
@@ -28,7 +36,7 @@ export default withAuth(
 
     // ✅ If user is verified and visits onboarding, redirect to dashboard
     if (token && token.emailVerified && pathname === ONBOARDING_ROUTE) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(new URL(DASHBOARD_ROUTE, req.url));
     }
 
     // ✅ Allow access to all other routes if authenticated & verified
