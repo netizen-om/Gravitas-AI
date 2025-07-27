@@ -48,11 +48,17 @@ export default function SignIn({ className = "" }) {
   }
   
   async function handleGoogleSignIn() {
-      await signIn('google');
+      await signIn('google', {
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
   } 
   
   async function handleGitHubSignIn() {
-      await signIn('github');
+      await signIn('github', {
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -59,12 +59,13 @@ export default function Signup({ className = "" }: SignupFormProps) {
     if (!result.success) return;
     setIsLoading(true);
     try {
-      // Simulate API call for account creation
       
       const res = await axios.post("/api/signup", {
         email,
         password,
-        name : "check123"
+        name : "check123",
+        redirect: true,
+        callbackUrl: "/dashboard"
       })
 
     } catch (error) {
@@ -80,11 +81,17 @@ export default function Signup({ className = "" }: SignupFormProps) {
   }
 
   async function handleGoogleSignIn() {
-    await signIn('google');
+    await signIn('google', {
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
   } 
 
   async function handleGitHubSignIn() {
-    await signIn('github');
+    await signIn('github', {
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
   }
 
   return (
