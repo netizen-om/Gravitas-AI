@@ -8,6 +8,7 @@ import LeftArrow from "@/components/icons/LeftArrow";
 import GoogleLogo from "@/components/icons/GoogleLogo";
 import GithubLogo from "@/components/GithubLogo";
 import axios from "axios";
+import Image from "next/image";
 
 interface SignupFormProps {
   className?: string;
@@ -90,10 +91,12 @@ export default function Signup({ className = "" }: SignupFormProps) {
     <div className={`bg-black min-h-screen ${className}`}>
       <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
         <div className="fixed inset-0 z-0 pointer-events-none select-none h-[872px] w-[1536px]">
-          <img
-            src="/bgImg/background-auth.webp"
+          <Image
+            src="/bgImg/background-auth.png"
             alt="Background Image"
+            fill
             className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
+            priority
           />
         </div>
 

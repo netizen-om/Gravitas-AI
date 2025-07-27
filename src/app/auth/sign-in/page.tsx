@@ -5,6 +5,7 @@ import GoogleLogo from "@/components/icons/GoogleLogo";
 import LeftArrow from "@/components/icons/LeftArrow";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -21,15 +22,6 @@ export default function SignIn({ className = "" }) {
       email: "",
       password: "",
   });
-
-  const credentialsAction = async (formData: FormData) => {
-    await signIn("credentials", {
-      redirect: true,
-      email,
-      password,
-      callbackUrl: "/dashboard",
-    });
-  };
 
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
       const value = event.target.value;
@@ -77,24 +69,24 @@ export default function SignIn({ className = "" }) {
       return;
     }
 
-    const res = await signIn("credentials", {
+    await signIn("credentials", {
       redirect: true,
       email,
       password,
       callbackUrl: "/dashboard",
     });
-
-    // You can optionally check `res?.error` or `res?.ok`
   }
 
   return (
     <div className={`bg-black min-h-screen ${className}`}>
       <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
         <div className="fixed inset-0 z-0 pointer-events-none select-none h-[872px] w-[1536px]">
-          <img
-            src="/bgImg/background-auth.webp"
+          <Image
+            src="/bgImg/background-auth.png"
             alt="Background Image"
+            fill
             className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
+            priority
           />
         </div>
 
@@ -164,7 +156,7 @@ export default function SignIn({ className = "" }) {
               Log in to Pravya
             </h1>
             <span className="inline text-sm leading-5 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/sign-up"
                 className="text-sm font-semibold leading-5 text-center ease-in-out cursor-pointer duration-[0.15s] transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to] text-white"
