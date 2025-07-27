@@ -8,9 +8,24 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      emailVerified? : boolean;
     };
   }
+  interface User {
+    emailVerified?: Date | null;
+  }
+
+}
+
+declare module "next-auth/jwt" {
   interface JWT {
-    id?: string;
+    id: string;
+    emailVerified?: Date | null;
   }
 }
+
+  interface JWT {
+    id?: string;
+    emailVerified? : Date | null
+  }
+

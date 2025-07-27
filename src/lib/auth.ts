@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         const ok = await bcrypt.compare(credentials.password, user.password);
         if (!ok) throw new Error("Invalid password");
 
-        return user;
+        return user as User;
       },
     }),
   ],
@@ -44,12 +44,16 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;        
+      if (user) {
+        token.id = user.id;
+        token.emailVerified = user.emailVerified;
+      }         
       return token;
     },
     async session({ session, token }) {
       if (session.user && token?.id) {
         session.user.id = token.id as string;  
+        session.user.emailVerified = !!token.emailVerified;
       }
       return session;
     },
