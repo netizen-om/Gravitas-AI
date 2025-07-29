@@ -116,7 +116,7 @@ const SuccessScreen = ({ username }: { username: string }) => (
 
         <div className="mt-8">
           <Link
-            href="/signin"
+            href="/auth/sign-in"
             className={`inline-flex items-center justify-center ${BUTTON_CLASSES}`}
           >
             Back to Sign In

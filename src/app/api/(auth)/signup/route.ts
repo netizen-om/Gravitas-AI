@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         password  : hashedPassword,
       }
     })
-
+    
     return NextResponse.json({ message: "User created", user })
   } catch (error) {
     console.error("Register Error:", error)
