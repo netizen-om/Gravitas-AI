@@ -67,7 +67,16 @@ export default function Signup({ className = "" }: SignupFormProps) {
         redirect: true,
         callbackUrl: "/dashboard"
       })
+      console.log("is 200 : " , res.status === 200)
 
+      if (res.status === 200) {
+        await signIn("credentials", {
+          redirect: true,
+          email,
+          password,
+          callbackUrl : "/dashboard"
+        });
+      }
     } catch (error) {
       console.error("Error SIGNUP : ", error);
       
