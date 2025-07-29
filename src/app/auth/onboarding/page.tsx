@@ -1,7 +1,8 @@
 "use client";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios";
 
 // Extract SVG components to prevent recreation on each render
 const BackIcon = () => (
@@ -54,81 +55,113 @@ const TITLE_CLASSES = "text-2xl font-semibold text-white mb-6 font-['ABCFavorit'
 const INPUT_CLASSES = "relative px-4 w-full h-12 text-sm leading-5 focus:outline-gray-950 text-white cursor-textbackdrop-blur-[25px] bg-origin-border rounded-2xl border-solid ease-in-out outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]";
 
 // Memoized success screen component
-const SuccessScreen = ({ username }: { username: string }) => (
-  <div className={CONTAINER_CLASSES}>
-    {/* Background Image */}
-    <div className="fixed inset-0 pointer-events-none z-0">
-      <Image 
-        src="/bgImg/background-auth.png"
-        alt="Background"
-        fill
-        className="object-cover pointer-events-none"
-        style={{ userSelect: 'none' }}
-        priority
-        quality={90}
-      />
-    </div>
+const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: string }) => {
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
-    {/* Back to Home Link */}
-    <Link 
-      href="/"
-      className={BACK_BUTTON_CLASSES}
-    >
-      <BackIcon />
-      <span>Home</span>
-    </Link>
+  // Send email automatically when component mounts
+  useEffect(() => {
+    const sendVerificationEmail = async () => {
+      try {
+        // Replace '/api/send-verification-email' with your actual API endpoint
+        const response = await axios.post('/api/send-verification-email', {
+          email: userEmail,
+        });
+        if (response.status === 200) {
+          setEmailSent(true);
+          console.log('Verification email sent successfully');
+        }
+      } catch (error) {
+        console.error('Error sending verification email:', error);
+        setEmailError('Failed to send verification email. Please try again.');
+      }
+    };
 
-    <main className={MAIN_CLASSES}>
-      <div className="text-center mb-6">
-        {/* Logo */}
-        <div className="inline-block w-12 mb-6">
-          <Logo />
-        </div>
+    sendVerificationEmail();
+  }, [username, userEmail]);
 
-        <h1 className={TITLE_CLASSES}>
-          Welcome, {username}!
-        </h1>
+  return (
+    <div className={CONTAINER_CLASSES}>
+      {/* Background Image */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <Image 
+          src="/bgImg/background-auth.png"
+          alt="Background"
+          fill
+          className="object-cover pointer-events-none"
+          style={{ userSelect: 'none' }}
+          priority
+          quality={90}
+        />
+      </div>
 
-        <div className="space-y-4 text-gray-400">
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-              <CheckIcon />
-            </div>
+      {/* Back to Home Link */}
+      <Link 
+        href="/"
+        className={BACK_BUTTON_CLASSES}
+      >
+        <BackIcon />
+        <span>Home</span>
+      </Link>
+
+      <main className={MAIN_CLASSES}>
+        <div className="text-center mb-6">
+          {/* Logo */}
+          <div className="inline-block w-12 mb-6">
+            <Logo />
           </div>
 
-          <h2 className="text-xl font-semibold text-white mb-4">
-            Check your email
-          </h2>
+          <h1 className={TITLE_CLASSES}>
+            Welcome, {username}!
+          </h1>
 
-          <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
-            We've sent a verification link to your email address. Please click the link to verify your account and complete the setup process.
-          </p>
+          <div className="space-y-4 text-gray-400">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                <CheckIcon />
+              </div>
+            </div>
 
-          <div className="mt-8 p-4 rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md">
-            <div className="flex items-center justify-center gap-3">
-              <div className="text-sm text-gray-400">
-                <p className="font-medium text-gray-300 mb-1">Didn't receive the email?</p>
-                <p>Check your spam folder or contact support if you need assistance.</p>
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Check your email
+            </h2>
+
+            <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
+              {emailSent 
+                ? "We've sent a verification link to your email address. Please click the link to verify your account and complete the setup process."
+                : emailError 
+                  ? emailError
+                  : "Sending verification email..."
+              }
+            </p>
+
+            <div className="mt-8 p-4 rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md">
+              <div className="flex items-center justify-center gap-3">
+                <div className="text-sm text-gray-400">
+                  <p className="font-medium text-gray-300 mb-1">Didn't receive the email?</p>
+                  <p>Check your spam folder or contact support if you need assistance.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-8">
-          <Link
-            href="/auth/sign-in"
-            className={`inline-flex items-center justify-center ${BUTTON_CLASSES}`}
-          >
-            Back to Sign In
-          </Link>
+          <div className="mt-8">
+            <Link
+              href="/auth/sign-in"
+              className={`inline-flex items-center justify-center ${BUTTON_CLASSES}`}
+            >
+              Back to Sign In
+            </Link>
+          </div>
         </div>
-      </div>
-    </main>
-  </div>
-);
+      </main>
+    </div>
+  );
+};
 
 export default function Onboarding() {
   const [username, setUsername] = useState("");
+  const [userEmail, setUserEmail] = useState(""); // Add email state if needed
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Memoize the form submit handler
@@ -145,6 +178,11 @@ export default function Onboarding() {
     setUsername(e.target.value);
   }, []);
 
+  // Add email change handler if you want to collect email
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserEmail(e.target.value);
+  }, []);
+
   // Memoize the trimmed username check
   const isUsernameValid = useMemo(() => username.trim().length > 0, [username]);
 
@@ -155,7 +193,7 @@ export default function Onboarding() {
 
   // Early return for success screen
   if (isSubmitted) {
-    return <SuccessScreen username={username} />;
+    return <SuccessScreen username={username} userEmail={userEmail} />;
   }
 
   return (
@@ -211,6 +249,24 @@ export default function Onboarding() {
               className={INPUT_CLASSES}
             />
           </div>
+
+          {/* Optional: Add email field if you want to collect it */}
+          {/*
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm text-gray-400">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={userEmail}
+              onChange={handleEmailChange}
+              placeholder="john@example.com"
+              required
+              className={INPUT_CLASSES}
+            />
+          </div>
+          */}
 
           <button
             type="submit"
