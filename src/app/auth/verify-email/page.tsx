@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 
 export default function VerifyEmailPage() {
+
+  const { data: session } = useSession();
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -26,7 +30,7 @@ export default function VerifyEmailPage() {
         if (response.status === 200) {
           setStatus("success");
           setMessage("✅ Email verified successfully! Redirecting to dashboard...");
-          setTimeout(() => router.push("/dashboard"), 5000);
+          await signOut({ redirect: true, callbackUrl : "/auth/sign-in" });
         } else {
           setStatus("error");
           setMessage(`❌ Verification failed: ${response.data.error || "Unknown error."}`);

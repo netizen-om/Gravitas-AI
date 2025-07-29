@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     // const { searchParams } = new URL(req.url);
     // const token = searchParams.get("token");
@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
       where: { id: decoded.userId },
       data: { emailVerified: true },
     });
-
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/auth/email-verified`);
+    
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/dashboard`);
   } catch (error) {
     console.error("[VERIFY_EMAIL]", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

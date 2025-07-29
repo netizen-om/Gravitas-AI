@@ -9,6 +9,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       emailVerified? : boolean;
+      password? : String | null;
     };
   }
   interface User {
