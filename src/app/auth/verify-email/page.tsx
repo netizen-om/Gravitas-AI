@@ -29,17 +29,17 @@ export default function VerifyEmailPage() {
 
         if (response.status === 200) {
           setStatus("success");
-          setMessage("✅ Email verified successfully! Redirecting to dashboard...");
+          setMessage("Email verified successfully! Redirecting to dashboard...");
           await signOut({ redirect: true, callbackUrl : "/auth/sign-in" });
         } else {
           setStatus("error");
-          setMessage(`❌ Verification failed: ${response.data.error || "Unknown error."}`);
+          setMessage(`Verification failed: ${response.data.error || "Unknown error."}`);
         }
       } catch (error: any) {
         const errMsg =
           error.response?.data?.error || error.message || "Verification failed";
         setStatus("error");
-        setMessage(`❌ Verification failed: ${errMsg}`);
+        setMessage(` Verification failed: ${errMsg}`);
       }
     };
 
