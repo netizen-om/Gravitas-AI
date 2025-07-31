@@ -66,6 +66,7 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
         // Replace '/api/send-verification-email' with your actual API endpoint
         const response = await axios.post('/api/send-verification-email', {
           email: userEmail,
+          username
         });
         if (response.status === 200) {
           setEmailSent(true);
@@ -165,11 +166,23 @@ export default function Onboarding() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Memoize the form submit handler
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = useCallback(async(e: React.FormEvent) => {
     e.preventDefault();
     const trimmedUsername = username.trim();
-    if (trimmedUsername) {
-      setIsSubmitted(true);
+
+    if (!trimmedUsername) return;
+
+    try {
+      const response = await axios.post("/api/user/update-username", {
+        username: trimmedUsername,
+      });
+
+      if (response.status === 200) {
+        setIsSubmitted(true);
+        console.log("Username updated successfully:", response.data);
+      }
+    } catch (error: any) {
+      console.error("Failed to update username:", error?.response?.data || error.message);
     }
   }, [username]);
 

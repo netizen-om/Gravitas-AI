@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: NextRequest) {
   try {
-    
+
     const currentUser = await getCurrentUser();
     if(!currentUser) {
         return NextResponse.json(
