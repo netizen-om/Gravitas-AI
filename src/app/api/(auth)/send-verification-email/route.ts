@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prismadb";
 import { resend } from "@/lib/resend";
 import jwt from "jsonwebtoken";
 import { getCurrentUser } from "@/lib/auth";
+import { sendEmail } from "@/lib/mailer";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -18,27 +19,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
-    const email = currentUser.email
-    
-    // if (!email) {
-    //   return NextResponse.json(
-    //     { error: "Email is required" }, 
-    //     { status: 400 }
-    //   );
-    // }
-
-    // Find user by email
-    // const user = await prisma.user.findUnique({ 
-    //   where: { email } 
-    // });
-    
-    // if (!user) {
-    //   return NextResponse.json(
-    //     { error: "User not found" }, 
-    //     { status: 404 }
-    //   );
-    // }
     
     if (currentUser.emailVerified) {
       return NextResponse.json(
@@ -57,11 +37,11 @@ export async function POST(req: NextRequest) {
     const verifyUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
 
     // Send the email (uncomment this when ready)
-    await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: "work.om08@gmail.com",
+    await sendEmail({
+      to: currentUser.email!,
       subject: "Verify Your Email",
-      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. Link expires in 15 minutes.</p>`,
+      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. This link expires in 15 minutes.</p>`,
+      text: `Visit this link to verify your email: ${verifyUrl}`,
     });
 
     return NextResponse.json({ 
