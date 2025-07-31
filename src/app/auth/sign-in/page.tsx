@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { getErrorMessage } from "@/utlis/getErrorMessage";
 
 const signinSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
@@ -17,31 +18,6 @@ const signinSchema = z.object({
 });
 
 export default function SignIn({ className = "" }) {
-
-  function getErrorMessage(errorCode: string) {
-  switch (errorCode) {
-    case "CredentialsSignin":
-    case "No user found":
-      return "Invalid email or password. Please try again.";
-
-    case "OAuthAccountNotLinked":
-      return "This email is already linked with a different provider.";
-
-    case "AccessDenied":
-      return "You don't have permission to access this.";
-
-    case "Configuration":
-      return "Server error. Please contact support.";
-
-    case "Verification":
-      return "The sign-in link is no longer valid.";
-
-    case "Default":
-    default:
-      return "Something went wrong. Please try again later.";
-  }
-}
-
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

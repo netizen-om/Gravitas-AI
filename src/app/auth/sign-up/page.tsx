@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { z } from "zod";
@@ -9,6 +9,9 @@ import GoogleLogo from "@/components/icons/GoogleLogo";
 import GithubLogo from "@/components/GithubLogo";
 import axios from "axios";
 import Image from "next/image";
+import { getErrorMessage } from "@/utlis/getErrorMessage";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 interface SignupFormProps {
   className?: string;
@@ -28,6 +31,19 @@ export default function Signup({ className = "" }: SignupFormProps) {
     email: "",
     password: "",
   });
+
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+
+  // Handle URL error parameters
+  useEffect(() => {
+    if (error) {
+      const message = getErrorMessage(error);
+      setTimeout(() => {
+        toast.error(message);
+      }, 100);
+    }
+  }, [error]);
 
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
@@ -56,7 +72,16 @@ export default function Signup({ className = "" }: SignupFormProps) {
       email: result.success ? "" : result.error.formErrors.fieldErrors.email?.[0] || "",
       password: result.success ? "" : result.error.formErrors.fieldErrors.password?.[0] || "",
     });
-    if (!result.success) return;
+    
+    if (!result.success) {
+      // Show toast for validation errors
+      const firstError = result.error.formErrors.fieldErrors.email?.[0] || result.error.formErrors.fieldErrors.password?.[0];
+      if (firstError) {
+        toast.error(firstError);
+      }
+      return;
+    }
+    
     setIsLoading(true);
     try {
       
@@ -70,6 +95,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
       console.log("is 200 : " , res.status === 200)
 
       if (res.status === 200) {
+        toast.success("Account created successfully! Signing you in...");
         await signIn("credentials", {
           redirect: true,
           email,
@@ -79,6 +105,23 @@ export default function Signup({ className = "" }: SignupFormProps) {
       }
     } catch (error) {
       console.error("Error SIGNUP : ", error);
+      
+      // Handle different types of errors
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { error?: string }, status?: number } };
+        if (axiosError.response?.data?.error) {
+          const errorMessage = getErrorMessage(axiosError.response.data.error);
+          toast.error(errorMessage);
+        } else if (axiosError.response?.status === 409) {
+          toast.error("Email already in use. Please try a different email.");
+        } else if (axiosError.response?.status === 400) {
+          toast.error("Invalid data provided. Please check your information.");
+        } else {
+          toast.error("Failed to create account. Please try again.");
+        }
+      } else {
+        toast.error("Failed to create account. Please try again.");
+      }
       
     } finally {
       setIsLoading(false);
@@ -90,17 +133,25 @@ export default function Signup({ className = "" }: SignupFormProps) {
   }
 
   async function handleGoogleSignIn() {
-    await signIn('google', {
-      redirect: true,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      await signIn('google', {
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    } catch {
+      toast.error("Failed to sign in with Google. Please try again.");
+    }
   } 
 
   async function handleGitHubSignIn() {
-    await signIn('github', {
-      redirect: true,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      await signIn('github', {
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    } catch {
+      toast.error("Failed to sign in with GitHub. Please try again.");
+    }
   }
 
   return (
@@ -184,7 +235,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
             <span className="inline text-sm leading-5 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
               Already have an account?{" "}
               <Link
-                href="/auth/aign-in"
+                href="/auth/sign-in"
                 className="text-sm font-semibold leading-5 text-center ease-in-out cursor-pointer duration-[0.15s] transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to] text-white"
               >
                 Log in
