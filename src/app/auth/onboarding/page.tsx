@@ -147,10 +147,10 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
 
           <div className="mt-8">
             <Link
-              href="/auth/sign-in"
+              href="/"
               className={`inline-flex items-center justify-center ${BUTTON_CLASSES}`}
             >
-              Back to Sign In
+              Back to home
             </Link>
           </div>
         </div>

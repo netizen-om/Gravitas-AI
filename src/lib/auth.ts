@@ -43,11 +43,22 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.emailVerified = user.emailVerified;
-      }         
+          token.id = user.id;
+
+          // Check if it's OAuth sign-in
+          if (account?.provider === "google" || account?.provider === "github") {
+            token.emailVerified = true;
+            
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { emailVerified: true }, 
+            });
+          } else {
+            token.emailVerified = user.emailVerified;
+          }
+      } 
       return token;
     },
     async session({ session, token }) {
