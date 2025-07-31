@@ -6,8 +6,10 @@ import LeftArrow from "@/components/icons/LeftArrow";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
+import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 const signinSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
@@ -16,12 +18,54 @@ const signinSchema = z.object({
 
 export default function SignIn({ className = "" }) {
 
+  function getErrorMessage(errorCode: string) {
+  switch (errorCode) {
+    case "CredentialsSignin":
+    case "No user found":
+      return "Invalid email or password. Please try again.";
+
+    case "OAuthAccountNotLinked":
+      return "This email is already linked with a different provider.";
+
+    case "AccessDenied":
+      return "You don't have permission to access this.";
+
+    case "Configuration":
+      return "Server error. Please contact support.";
+
+    case "Verification":
+      return "The sign-in link is no longer valid.";
+
+    case "Default":
+    default:
+      return "Something went wrong. Please try again later.";
+  }
+}
+
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
       email: "",
       password: "",
   });
+
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  
+
+
+  useEffect(() => {
+    if (error) {
+      const message = getErrorMessage(error);
+      console.log("Error detected:", error, "Message:", message);
+      // Add a small delay to ensure toast is visible
+      setTimeout(() => {
+        toast.error(message);
+      }, 100);
+    }
+  }, [error]);
+
 
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
       const value = event.target.value;
@@ -48,17 +92,25 @@ export default function SignIn({ className = "" }) {
   }
   
   async function handleGoogleSignIn() {
+    try {
       await signIn('google', {
-      redirect: true,
-      callbackUrl: "/dashboard",
-    });
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    } catch {
+      toast.error("Failed to sign in with Google. Please try again.");
+    }
   } 
   
   async function handleGitHubSignIn() {
+    try {
       await signIn('github', {
-      redirect: true,
-      callbackUrl: "/dashboard",
-    });
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    } catch {
+      toast.error("Failed to sign in with GitHub. Please try again.");
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -72,15 +124,25 @@ export default function SignIn({ className = "" }) {
         email: fieldErrors.email?.[0] || "",
         password: fieldErrors.password?.[0] || "",
       });
+      
+      // Show toast for validation errors
+      const firstError = fieldErrors.email?.[0] || fieldErrors.password?.[0];
+      if (firstError) {
+        toast.error(firstError);
+      }
       return;
     }
 
-    await signIn("credentials", {
-      redirect: true,
-      email,
-      password,
-      callbackUrl: "/dashboard",
-    });
+    try {
+      await signIn("credentials", {
+        redirect: true,
+        email,
+        password,
+        callbackUrl: "/dashboard",
+      });
+    } catch {
+      toast.error("Failed to sign in. Please check your credentials and try again.");
+    }
   }
 
   return (

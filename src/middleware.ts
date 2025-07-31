@@ -23,7 +23,7 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // ✅ Block unverified users from all other routes
+    // Block unverified users from all other routes
     if (token && !token.emailVerified) {
       // Allow access to onboarding
       if (pathname === ONBOARDING_ROUTE) {
@@ -34,12 +34,12 @@ export default withAuth(
       return NextResponse.redirect(new URL(ONBOARDING_ROUTE, req.url));
     }
 
-    // ✅ If user is verified and visits onboarding, redirect to dashboard
+    // If user is verified and visits onboarding, redirect to dashboard
     if (token && token.emailVerified && pathname === ONBOARDING_ROUTE) {
       return NextResponse.redirect(new URL(DASHBOARD_ROUTE, req.url));
     }
 
-    // ✅ Allow access to all other routes if authenticated & verified
+    // Allow access to all other routes if authenticated & verified
     return NextResponse.next();
   },
   {

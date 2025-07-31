@@ -58,10 +58,15 @@ const INPUT_CLASSES = "relative px-4 w-full h-12 text-sm leading-5 focus:outline
 const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: string }) => {
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [hasAttemptedSend, setHasAttemptedSend] = useState(false);
 
   // Send email automatically when component mounts
   useEffect(() => {
+    // Prevent multiple email sends
+    if (hasAttemptedSend || !userEmail) return;
+    
     const sendVerificationEmail = async () => {
+      setHasAttemptedSend(true);
       try {
         // Replace '/api/send-verification-email' with your actual API endpoint
         const response = await axios.post('/api/send-verification-email', {
@@ -79,7 +84,7 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
     };
 
     sendVerificationEmail();
-  }, [username, userEmail]);
+  }, [username, userEmail, hasAttemptedSend]);
 
   return (
     <div className={CONTAINER_CLASSES}>
