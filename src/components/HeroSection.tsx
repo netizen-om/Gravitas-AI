@@ -252,7 +252,7 @@ export default function HeroSection() {
                     onClick={() => {
                       if (session) {
                         // Navigate to practice page
-                        window.location.href = '/practice'
+                        window.location.href = '/dashboard'
                       } else {
                         // Sign in first
                         signIn()
