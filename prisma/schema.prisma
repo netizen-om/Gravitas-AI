@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid()) // changed from userId
+  id            String   @id @default(cuid()) 
   name          String?
-  email         String?   @unique
+  email         String?  @unique
   emailVerified Boolean?
   image         String?
   password      String?
 
   accounts   Account[]
   interviews Interview[]
+  payment    payment[]
 }
 
 model Account {
@@ -39,18 +40,18 @@ model Account {
 }
 
 model Interview {
-  interviewId String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id]) // changed to reference id
-  role        String
-  level       String
-  amount      Int
-  techstack   String
-  type        String
-  createdAt   DateTime @default(now())
-  status      String   @default("pending")
+  interviewId   String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id]) // changed to reference id
+  role          String
+  level         String
+  amount        Int
+  techstack     String
+  type          String
+  createdAt     DateTime @default(now())
+  status        String   @default("pending")
   questionArray String[]
-  
+
   questions Question[]
   feedback  Feedback?
   audio     Interview_audio?
@@ -84,4 +85,18 @@ model Interview_audio {
   endTime    DateTime
   transcript String[]
   audioUrl   String
+}
+
+model payment {
+  paymentId         String   @id @default(uuid())
+  createdAt         DateTime @default(now())
+  userId            String
+  amount            Int
+  paymentMethod     String
+  razorpayOrderId   String
+  razorpayPaymentId String
+  metadata          Json?
+  currency          String   @default("INR")
+
+  user User @relation(fields: [userId], references: [id])
 }
