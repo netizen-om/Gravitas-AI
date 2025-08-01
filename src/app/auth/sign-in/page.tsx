@@ -124,12 +124,12 @@ export default function SignIn({ className = "" }) {
   return (
     <div className={`bg-black min-h-screen ${className}`}>
       <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
-        <div className="fixed inset-0 z-0 pointer-events-none select-none h-[872px] w-[1536px]">
+        <div className="fixed inset-0 z-0 pointer-events-none select-none min-h-screen w-auto">
           <Image
             src="/bgImg/background-auth.png"
             alt="Background Image"
             fill
-            className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
+            className="absolute object-cover inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
             priority
           />
         </div>

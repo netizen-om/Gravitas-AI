@@ -157,7 +157,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
   return (
     <div className={`bg-black min-h-screen ${className}`}>
       <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
-        <div className="fixed inset-0 z-0 pointer-events-none select-none h-[872px] w-[1536px]">
+        <div className="fixed inset-0 z-0 pointer-events-none select-none min-h-screen w-auto">
           <Image
             src="/bgImg/background-auth.png"
             alt="Background Image"
