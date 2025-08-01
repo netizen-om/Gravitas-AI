@@ -35,19 +35,28 @@ export async function POST(req: NextRequest) {
     );
 
     const verifyUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
+    console.log("Attempting to send verification email to:", currentUser.email);
+    
+    try {
+      // Send the email
+      await sendEmail({
+        to: currentUser.email!,
+        subject: "Verify Your Email",
+        html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. This link expires in 15 minutes.</p>`,
+        text: `Visit this link to verify your email: ${verifyUrl}`,
+      });
 
-    // Send the email (uncomment this when ready)
-    await sendEmail({
-      to: currentUser.email!,
-      subject: "Verify Your Email",
-      html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. This link expires in 15 minutes.</p>`,
-      text: `Visit this link to verify your email: ${verifyUrl}`,
-    });
-
-    return NextResponse.json({ 
-      success: true,
-      message: "Verification email sent successfully" 
-    });
+      return NextResponse.json({ 
+        success: true,
+        message: "Verification email sent successfully" 
+      });
+    } catch (emailError) {
+      console.error("[EMAIL_SEND_ERROR]", emailError);
+      return NextResponse.json(
+        { error: "Failed to send verification email. Please check your email configuration." }, 
+        { status: 500 }
+      );
+    }
     
   } catch (error) {
     console.error("[SEND_VERIFICATION]", error);

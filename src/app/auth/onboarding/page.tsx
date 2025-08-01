@@ -67,12 +67,11 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
     
     const sendVerificationEmail = async () => {
       setHasAttemptedSend(true);
+      console.log("Trying to send email");
+      
       try {
-        // Replace '/api/send-verification-email' with your actual API endpoint
-        const response = await axios.post('/api/send-verification-email', {
-          email: userEmail,
-          username
-        });
+        // Send verification email without additional data
+        const response = await axios.post('/api/send-verification-email');
         if (response.status === 200) {
           setEmailSent(true);
           console.log('Verification email sent successfully');
@@ -83,8 +82,8 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
       }
     };
 
-    sendVerificationEmail();
-  }, [username, userEmail, hasAttemptedSend]);
+    // sendVerificationEmail();
+  }, [userEmail, hasAttemptedSend]);
 
   return (
     <div className={CONTAINER_CLASSES}>
@@ -133,12 +132,7 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
             </h2>
 
             <p className="text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
-              {emailSent 
-                ? "We've sent a verification link to your email address. Please click the link to verify your account and complete the setup process."
-                : emailError 
-                  ? emailError
-                  : "Sending verification email..."
-              }
+                "We've sent a verification link to your email address. Please click the link to verify your account and complete the setup process."
             </p>
 
             <div className="mt-8 p-4 rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md">
@@ -166,6 +160,9 @@ const SuccessScreen = ({ username, userEmail }: { username: string; userEmail?: 
 };
 
 export default function Onboarding() {
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [hasAttemptedSend, setHasAttemptedSend] = useState(false);
   const [username, setUsername] = useState("");
   const [userEmail, setUserEmail] = useState(""); // Add email state if needed
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -186,6 +183,22 @@ export default function Onboarding() {
         setIsSubmitted(true);
         console.log("Username updated successfully:", response.data);
       }
+
+      setHasAttemptedSend(true);
+      console.log("Trying to send email");
+      
+      try {
+        // Send verification email without additional data
+        const response = await axios.post('/api/send-verification-email');
+        if (response.status === 200) {
+          setEmailSent(true);
+          console.log('Verification email sent successfully');
+        } 
+      } catch (error) {
+        console.error('Error sending verification email:', error);
+        setEmailError('Failed to send verification email. Please try again.');
+      }
+
     } catch (error: any) {
       console.error("Failed to update username:", error?.response?.data || error.message);
     }

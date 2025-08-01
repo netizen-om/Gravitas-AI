@@ -6,6 +6,15 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { getServerSession, NextAuthOptions } from "next-auth"
 
+// Import User type that matches NextAuth requirements
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  emailVerified?: boolean;
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -56,7 +65,7 @@ export const authOptions: NextAuthOptions = {
               data: { emailVerified: true }, 
             });
           } else {
-            token.emailVerified = user.emailVerified;
+            token.emailVerified = !!user.emailVerified;
           }
       } 
       return token;
