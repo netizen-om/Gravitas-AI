@@ -20,6 +20,7 @@ import {
   LogOut,
   Loader2,
 } from "lucide-react"
+import PravyaLogo from "@/components/PravyaLogo"
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -186,9 +187,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-black" />
-              </div>
+              <PravyaLogo />
               <span className="text-xl font-bold">Pravya AI</span>
             </div>
 
