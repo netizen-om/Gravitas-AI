@@ -303,7 +303,7 @@ export default function HeroSection() {
                     />
                     
                     <div className="central-brain">
-                      <Brain size={80} className="text-silver-300 drop-shadow-lg" />
+                      <Brain size={120} className="text-silver-300 drop-shadow-lg" />
                     </div>
 
                     {/* Enhanced Floating Elements */}
