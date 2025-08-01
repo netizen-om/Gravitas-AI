@@ -162,6 +162,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
             src="/bgImg/background-auth.png"
             alt="Background Image"
             fill
+            
             className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
             priority
           />
