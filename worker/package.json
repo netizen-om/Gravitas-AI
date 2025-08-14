@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "dev:parser": "ts-node-dev --respawn --transpile-only src/parser.ts"
+    "dev:res": "ts-node-dev --respawn --transpile-only src/processResume.ts"
   },
   "keywords": [],
   "author": "",

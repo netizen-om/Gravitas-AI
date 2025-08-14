@@ -1,13 +1,11 @@
 import { Worker } from "bullmq";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { QdrantVectorStore } from "@langchain/qdrant";
-import { QdrantClient } from "@qdrant/js-client-rest";
 import { GoogleGenerativeAIEmbeddings  }  from "@langchain/google-genai"
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const client = new QdrantClient({ url: "http://localhost:6333" });
 
 const worker = new Worker(
     'resume-processing',
