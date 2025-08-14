@@ -13,7 +13,7 @@ const worker = new Worker(
   async (job) => {
     try {
       console.log("Job Data: ", job.data);
-      const { fileUrl } = job.data;
+      const { fileUrl, userId, resumeId } = job.data;
 
       // 1️⃣ Download PDF from Cloudinary
       console.log("Downloading from Cloudinary:", fileUrl);
@@ -23,25 +23,36 @@ const worker = new Worker(
 
       // 2️⃣ Load PDF from memory using a Blob
       const blob = new Blob([arrayBuffer], { type: "application/pdf" });
-      //@ts-ignore
-      const loader = new PDFLoader(blob); // Directly from memory
+      // @ts-ignore - fs/pdf normally expects a path, but bypassing type check here
+      const loader = new PDFLoader(blob);
       const docs = await loader.load();
-      console.log(`Loaded ${docs.length} document chunks`);
 
-      // 3️⃣ Create embeddings
+      // 3️⃣ Attach metadata (userId & resumeId) to each chunk
+      const docsWithMetadata = docs.map(doc => ({
+        ...doc,
+        metadata: {
+          ...doc.metadata,
+          userId,
+          resumeId
+        }
+      }));
+
+      console.log(`Loaded ${docsWithMetadata.length} chunks with metadata`);
+
+      // 4️⃣ Create embeddings
       const embeddings = new GoogleGenerativeAIEmbeddings({
         model: "embedding-001",
         apiKey: process.env.GOOGLE_API_KEY,
       });
 
-      // 4️⃣ Connect to Qdrant and upload
+      // 5️⃣ Connect to Qdrant and upload
       const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
         url: "http://localhost:6333",
-        collectionName: "pravya-resume",
+        collectionName: "pravya-resume"
       });
 
-      await vectorStore.addDocuments(docs);
-      console.log("✅ All docs added to Qdrant");
+      await vectorStore.addDocuments(docsWithMetadata);
+      console.log("✅ All docs added to Qdrant with metadata");
     } catch (error) {
       console.error("❌ ERROR:", error);
     }
