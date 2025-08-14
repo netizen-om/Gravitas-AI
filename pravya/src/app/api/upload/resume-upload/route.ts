@@ -48,14 +48,21 @@ export async function POST(req: Request) {
     const result: any = await uploadStream();
 
     // Store in DB
+    // const savedResume = await prisma.resume.create({
+        // userId: session.user.id,
+        // fileName: originalFileName, // unmodified
+        // fileUrl: result.secure_url,
+        // publicId: result.public_id,
+      
+    // });
     const savedResume = await prisma.resume.create({
-      data: {
+      data : {
         userId: session.user.id,
         fileName: originalFileName, // unmodified
         fileUrl: result.secure_url,
         publicId: result.public_id,
-      },
-    });
+      }
+    })
 
     return NextResponse.json({ success: true, resume: savedResume });
   } catch (error: any) {

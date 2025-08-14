@@ -111,7 +111,7 @@ model Resume {
   publicId     String
   fileUrl      String
   status       String   @default("uploaded")
-  qdrantFileId String
+  qdrantFileId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
