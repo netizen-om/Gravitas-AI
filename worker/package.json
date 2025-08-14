@@ -4,20 +4,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"ts-node src/index.ts\" \"ts-node workers/resumeProcessor.ts\""
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:parser": "ts-node-dev --respawn --transpile-only src/parser.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "description": "",
-  "dependencies": {
-    "bullmq": "^5.57.0",
-    "ioredis": "^5.7.0"
-  },
   "devDependencies": {
-    "@types/node": "^24.2.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "ts-node-dev": "^2.0.0"
   }
 }
