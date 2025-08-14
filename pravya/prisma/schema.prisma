@@ -107,12 +107,11 @@ model Resume {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  fileName      String
-  cloudinaryId  String
-  cloudinaryUrl String
-  status        String   @default("uploaded")
-  qdrantFileId  String 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
+  fileName     String
+  publicId     String
+  fileUrl      String
+  status       String   @default("uploaded")
+  qdrantFileId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

@@ -10,26 +10,32 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session || !session.user?.email) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
+
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
+
+    const originalFileName = file.name; // keep unmodified name
+    const uniqueFileName = `${session.user.id}-${originalFileName}`;
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Helper to upload using stream
+    // Upload to Cloudinary with custom filename
     const uploadStream = () =>
       new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: "resumes",
+            public_id: uniqueFileName, // custom name in Cloudinary
             resource_type: "auto",
+            overwrite: false, // avoid replacing existing files
           },
           (error, result) => {
             if (error) reject(error);
@@ -45,6 +51,7 @@ export async function POST(req: Request) {
     const savedResume = await prisma.resume.create({
       data: {
         userId: session.user.id,
+        fileName: originalFileName, // unmodified
         fileUrl: result.secure_url,
         publicId: result.public_id,
       },
