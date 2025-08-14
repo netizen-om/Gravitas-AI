@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prismadb";
 import { Readable } from "stream";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import { resumeProcessingQueue } from "@/lib/queues";
 
 export async function POST(req: Request) {
   try {
@@ -59,6 +60,14 @@ export async function POST(req: Request) {
         publicId: result.public_id,
       }
     })
+
+    await resumeProcessingQueue.add("process-resume", {
+      resumeId: savedResume.id,
+      fileUrl: savedResume.fileUrl,
+      userId: savedResume.userId,
+      publicId : savedResume.publicId,
+      fileName : savedResume.fileName
+    });
 
     return NextResponse.json({ success: true, resume: savedResume });
   } catch (error: any) {
