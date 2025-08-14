@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const originalFileName = file.name; // keep unmodified name
+    const originalFileName = file.name.replace(/\.[^/.]+$/, ""); // keep unmodified name
     const uniqueFileName = `${session.user.id}-${originalFileName}`;
 
     // Convert file to buffer
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
           {
             folder: "resumes",
             public_id: uniqueFileName, // custom name in Cloudinary
-            resource_type: "auto",
+            resource_type: "raw",
             overwrite: false, // avoid replacing existing files
           },
           (error, result) => {
@@ -46,19 +46,15 @@ export async function POST(req: Request) {
       });
 
     const result: any = await uploadStream();
+    console.log("Cloudinary PDF URL:", result.secure_url);
 
-    // Store in DB
-    // const savedResume = await prisma.resume.create({
-        // userId: session.user.id,
-        // fileName: originalFileName, // unmodified
-        // fileUrl: result.secure_url,
-        // publicId: result.public_id,
-      
-    // });
+    const pdfUrl = result.secure_url.endsWith(".pdf") ? result.secure_url
+      : `${result.secure_url}.pdf`;
+
     const savedResume = await prisma.resume.create({
       data : {
         userId: session.user.id,
-        fileName: originalFileName, // unmodified
+        fileName: originalFileName,
         fileUrl: result.secure_url,
         publicId: result.public_id,
       }
