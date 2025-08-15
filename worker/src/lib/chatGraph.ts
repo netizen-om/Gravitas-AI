@@ -1,11 +1,10 @@
 // src/graph.ts
-import { StateGraph, END } from "@langchain/langgraph";
-import { z } from "zod";
+import { StateGraph, END, START } from "@langchain/langgraph";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PrismaClient } from "@prisma/client";
-import { QdrantClient } from "@qdrant/js-client-rest"; // The client is a peer dependency
-import { QdrantVectorStore } from "@langchain/qdrant"; // The LangChain wrapper
+import { QdrantClient } from "@qdrant/js-client-rest";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { BaseMessage } from "@langchain/core/messages";
 
 // ----- INITIALIZATION -----
 const prisma = new PrismaClient();
@@ -14,14 +13,7 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-// NEW: Initialize the LangChain Vector Store
-const vectorStore = new QdrantVectorStore(embeddings, {
-  client: qdrantClient,
-  collectionName: "resumes", // Specify the collection name here
-});
-
-
-// ----- TYPES AND STATE (No changes) -----
+// ----- TYPES AND STATE -----
 type AnalysisJson = {
   grammarErrors?: { error: string; suggestion: string }[];
   spellingErrors?: { word: string; suggestion: string }[];
@@ -30,54 +22,19 @@ type AnalysisJson = {
   summary?: string;
 };
 
+// This interface defines the "memory" or state of our agent.
 interface GraphState {
   resumeId: string;
   question: string;
-  analysisContext?: Partial<AnalysisJson>;
-  vectorContext?: string;
+  analysisContext: Partial<AnalysisJson>;
+  vectorContext: string;
   generation?: string;
 }
 
+// ----- NODES (Actions the agent can take) -----
 
-// ----- NODES (Only retrieveVectorNode is changed) -----
-
-const routeQuestionNode = async (state: GraphState) => {
-  console.log("-> Node: route_question");
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash",
-    temperature: 0,
-  }).bind({
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "route",
-          description: "Select the context needed to answer the user's question about their resume.",
-          parameters: z.object({
-            use_postgres: z.boolean().describe("Set to true if the question is about resume improvements, scores, errors, or formatting."),
-            use_qdrant: z.boolean().describe("Set to true if the question is about skills, experience, or career recommendations."),
-          }),
-        },
-      },
-    ],
-    tool_choice: { type: "function", function: { name: "route" } },
-  });
-
-  const prompt = `Based on the user's question, decide which data sources are relevant. Question: "${state.question}"`;
-  const result = await model.invoke(prompt);
-  const toolCall = result.additional_kwargs.tool_calls?.[0].function;
-
-  if (!toolCall || !toolCall.arguments) {
-    console.log("   Router decision: No tool called, defaulting to Qdrant search.");
-    return { use_postgres: false, use_qdrant: true };
-  }
-
-  const args = JSON.parse(toolCall.arguments);
-  console.log(`   Router decision:`, args);
-  return { use_postgres: args.use_postgres, use_qdrant: args.use_qdrant };
-};
-
-const retrieveAnalysisNode = async (state: GraphState) => {
+// Each node now returns a Partial<GraphState> to update the overall state.
+const retrieveAnalysisNode = async (state: GraphState): Promise<Partial<GraphState>> => {
   console.log("-> Node: retrieve_analysis");
   const analysisRecord = await prisma.resumeAnalysis.findUnique({
     where: { resumeId: state.resumeId },
@@ -85,93 +42,102 @@ const retrieveAnalysisNode = async (state: GraphState) => {
   });
 
   if (!analysisRecord || typeof analysisRecord.analysis !== 'object' || analysisRecord.analysis === null) {
-    return { analysisContext: { summary: "No detailed analysis was found for this resume." } };
+    return { analysisContext: {} };
   }
-
   const fullAnalysis = analysisRecord.analysis as AnalysisJson;
-  const relevantContext: Partial<AnalysisJson> = {
-    grammarErrors: fullAnalysis.grammarErrors,
-    spellingErrors: fullAnalysis.spellingErrors,
-    formattingIssues: fullAnalysis.formattingIssues,
-    missingKeywords: fullAnalysis.missingKeywords,
-    summary: fullAnalysis.summary,
-  };
-  return { analysisContext: relevantContext };
+  return { analysisContext: fullAnalysis };
 };
 
-// REWRITTEN: This node is now much simpler.
-const retrieveVectorNode = async (state: GraphState) => {
-  console.log("-> Node: retrieve_vector");
-  
-  // The vectorStore handles embedding the query and searching in one step.
-  const searchResult = await vectorStore.similaritySearch(state.question, 3, {
-    must: [{
-      key: "metadata.resumeId",
-      match: { value: state.resumeId },
-    }],
-  });
-
-  const vectorContext = searchResult
-    .map((result) => result.pageContent)
-    .join("\n---\n");
-    
-  return { vectorContext };
+const retrieveVectorNode = async (state: GraphState): Promise<Partial<GraphState>> => {
+  console.log("-> Node: retrieve_vector (using direct client)");
+  try {
+    const queryEmbedding = await embeddings.embedQuery(state.question);
+    const searchResult = await qdrantClient.search("pravya-resume", {
+      vector: queryEmbedding,
+      limit: 3,
+      filter: {
+        must: [{
+          key: "resumeId",
+          match: { value: state.resumeId },
+        }],
+      },
+      with_payload: true,
+    });
+    const vectorContext = searchResult
+      .map((point) => point.payload?.pageContent as string)
+      .filter(Boolean)
+      .join("\n---\n");
+    return { vectorContext };
+  } catch (error) {
+    console.error("   Error in retrieveVectorNode:", error);
+    return { vectorContext: "Could not retrieve resume excerpts due to an error." };
+  }
 };
 
-const generateAnswerNode = async (state: GraphState) => {
+const generateAnswerNode = async (state: GraphState): Promise<Partial<GraphState>> => {
   console.log("-> Node: generate_answer");
-  let context = "";
-  if (state.analysisContext && Object.keys(state.analysisContext).length > 0) {
-    context += `\n\n## Resume Analysis Data:\n${JSON.stringify(state.analysisContext, null, 2)}`;
-  }
-  if (state.vectorContext) {
-    context += `\n\n## Relevant Resume Excerpts:\n${state.vectorContext}`;
-  }
-  if (context.trim() === "") {
-    context = "No specific context was found for this question. Please answer based on general knowledge or ask the user for more details.";
-  }
-
+  const { analysisContext, vectorContext, question } = state;
   const model = new ChatGoogleGenerativeAI({
-    modelName: "gemini-2.5-flash",
+    model: "gemini-2.5-flash", // Correct parameter is modelName
     temperature: 0.2,
   });
+  const prompt = `You are a helpful and encouraging resume assistant. Answer the user's question based on the provided context.
 
-  const prompt = `You are a helpful and encouraging resume assistant. Answer the user's question based ONLY on the provided context. Be conversational and clear.\n\n${context}\n\n## User's Question:\n"${state.question}"\n\nAnswer:`;
+If the question is about resume improvements, errors, or formatting, primarily use the "Resume Analysis Data".
+If the question is about skills, experience, or career advice, primarily use the "Relevant Resume Excerpts".
+
+## Resume Analysis Data:
+${JSON.stringify(analysisContext, null, 2)}
+
+## Relevant Resume Excerpts:
+${vectorContext}
+
+## User's Question:
+"${question}"
+
+Answer:`;
   const generation = await model.invoke(prompt);
   return { generation: generation.content.toString() };
 };
 
+// ----- GRAPH DEFINITION (REWRITTEN WITH LATEST SYNTAX) -----
 
-// ----- GRAPH DEFINITION (No changes) -----
+// This defines how the state properties are updated. 'value: (x, y) => y'
+// means that the new value from a node's output will always replace the old one.
+const graphState = {
+  resumeId: { value: (x: string, y: string) => y, default: () => "" },
+  question: { value: (x: string, y: string) => y, default: () => "" },
+  analysisContext: { value: (x: Partial<AnalysisJson>, y: Partial<AnalysisJson>) => y, default: () => ({}) },
+  vectorContext: { value: (x: string, y: string) => y, default: () => "" },
+  generation: { value: (x?: string, y?: string) => y, default: () => undefined },
+};
 
+// Initialize the graph with the state definition
 const workflow = new StateGraph({
-  channels: {
-    resumeId: { value: (x, y) => y, default: () => "" },
-    question: { value: (x, y) => y, default: () => "" },
-    analysisContext: { value: (x, y) => y, default: () => undefined },
-    vectorContext: { value: (x, y) => y, default: () => undefined },
-    generation: { value: (x, y) => y, default: () => undefined },
-  },
+  channels: graphState,
 });
 
-workflow.addNode("router", routeQuestionNode);
+// Add the nodes to the graph
 workflow.addNode("retrieve_analysis", retrieveAnalysisNode);
 workflow.addNode("retrieve_vector", retrieveVectorNode);
 workflow.addNode("generate_answer", generateAnswerNode);
 
-workflow.setEntryPoint("router");
-workflow.addConditionalEdges("router", 
-  (decision: { use_postgres: boolean; use_qdrant: boolean }) => {
-    const nextEdges = [];
-    if (decision.use_postgres) nextEdges.push("retrieve_analysis");
-    if (decision.use_qdrant) nextEdges.push("retrieve_vector");
-    if (nextEdges.length === 0) return "generate_answer"; 
-    return nextEdges;
-  },
+// Define the graph's flow
+workflow.setEntryPoint(START); // The graph starts here
+
+// From the start, branch to run both retrieval nodes in parallel
+workflow.addConditionalEdges(START, 
+  () => ["retrieve_analysis", "retrieve_vector"],
 );
 
+// After BOTH retrieval nodes are finished, they both lead to the final generation step.
+// LangGraph automatically handles this as a "join" point, waiting for all incoming
+// edges to complete before proceeding.
 workflow.addEdge("retrieve_analysis", "generate_answer");
 workflow.addEdge("retrieve_vector", "generate_answer");
+
+// The graph ends after the answer is generated.
 workflow.addEdge("generate_answer", END);
 
+// Compile the graph into a runnable agent.
 export const resumeChatAgent = workflow.compile();

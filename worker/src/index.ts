@@ -6,9 +6,11 @@ import { resumeChatAgent } from './lib/chatGraph';
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 
-const PORT = process.env.PORT || 8000;
+app.use(express.json());
+app.use(express.urlencoded({extended : true}))
+
+const PORT = 8000;
 
 app.post('/chat/:resumeId', async (req, res) => {
   const { resumeId } = req.params;
