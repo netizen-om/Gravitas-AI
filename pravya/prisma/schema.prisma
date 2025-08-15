@@ -107,11 +107,22 @@ model Resume {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  fileName     String
-  publicId     String
-  fileUrl      String
-  status       String   @default("uploaded")
-  qdrantFileId String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  fileName       String
+  publicId       String
+  fileUrl        String
+  status         String          @default("uploaded")
+  qdrantFileId   String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  ResumeAnalysis ResumeAnalysis?
+}
+
+model ResumeAnalysis {
+  resumeAnalysisId String @id @default(cuid())
+  resumeId         String @unique
+  resume           Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  atsScore Int?
+  analysis Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
