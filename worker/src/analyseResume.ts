@@ -7,21 +7,18 @@ import { generateObject } from "ai";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod"; // Keep this
 
-// ----- 1. Import the generic ZodType -----
-import type { z as zod } from 'zod'; // <-- ADD THIS
-
 dotenv.config();
 
 const prisma = new PrismaClient();
 
-// ----- Job Data Interface (No change) -----
+// ----- Job Data Interface -----
 interface ResumeAnalyseJobData {
   fileUrl: string;
   userId: string;
   resumeId: string;
 }
 
-// ----- Zod Schema for Analysis (No change) -----
+// ----- Zod Schema for Analysis -----
 const AnalysisSchema = z.object({
   atsScore: z.number().min(0).max(100).optional(),
   grammarErrors: z
@@ -54,11 +51,8 @@ const AnalysisSchema = z.object({
   summary: z.string().optional(),
 });
 
-// ----- Inferred type (No change) -----
+// ----- Inferred type -----
 type ResumeAnalysisType = z.infer<typeof AnalysisSchema>;
-
-// ----- 2. Create an explicitly typed schema variable -----
-const schemaForAI: zod.ZodType = AnalysisSchema; // <-- ADD THIS
 
 // ----- Worker -----
 const worker = new Worker<ResumeAnalyseJobData>(
@@ -68,7 +62,6 @@ const worker = new Worker<ResumeAnalyseJobData>(
       console.log("Job Data: ", job.data);
       const { fileUrl, resumeId } = job.data;
 
-      // ... (rest of the file download and parsing logic is unchanged)
       // 1) Download PDF
       console.log("Downloading from Cloudinary:", fileUrl);
       const response = await fetch(fileUrl);
@@ -89,8 +82,11 @@ const worker = new Worker<ResumeAnalyseJobData>(
       // 3) Call Gemini 2.5 Flash for structured analysis
       const { object } = await generateObject({
         model: google("gemini-2.5-flash"),
-        // ----- 3. Use the new variable here -----
-        schema: schemaForAI, // <-- CHANGE THIS
+        
+        // v-- THE DEFINITIVE FIX --v
+        schema: AnalysisSchema as any,
+        // ^-- THE DEFINITIVE FIX --^
+
         messages: [
           {
             role: "system",
@@ -104,10 +100,11 @@ const worker = new Worker<ResumeAnalyseJobData>(
         ],
       });
 
-      // 4) Parse again to be 100% type-safe at runtime (No change)
-      const validatedAnalysis: ResumeAnalysisType = AnalysisSchema.parse(object);
+      // 4) Parse again to be 100% type-safe at runtime
+      const validatedAnalysis: ResumeAnalysisType =
+        AnalysisSchema.parse(object);
 
-      // 5) Save to Postgres (upsert) (No change)
+      // 5) Save to Postgres (upsert)
       await prisma.resumeAnalysis.upsert({
         where: { resumeId },
         create: {
@@ -125,7 +122,7 @@ const worker = new Worker<ResumeAnalyseJobData>(
       console.log(`✅ Analysis saved for resume ${resumeId}`);
     } catch (error) {
       console.error("❌ ERROR:", error);
-      throw error; // It's good practice to re-throw the error
+      throw error;
     }
   },
   {
