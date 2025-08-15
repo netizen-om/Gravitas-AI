@@ -1,29 +1,47 @@
-import { PrismaClient } from "@prisma/client";
-import express, { Request, Response } from "express";
+// src/index.ts
+import express from 'express';
+import dotenv from 'dotenv';
+import { resumeChatAgent } from './graph';
+
+dotenv.config();
 
 const app = express();
-const PORT = 3001;
+app.use(express.json());
 
-const prisma = new PrismaClient();
+const PORT = process.env.PORT || 8000;
 
-app.get("/check", async (req: Request, res: Response) => {
+app.post('/chat/:resumeId', async (req, res) => {
+  const { resumeId } = req.params;
+  const { question } = req.body;
+
+  if (!resumeId || !question) {
+    return res.status(400).json({ error: 'resumeId and question are required.' });
+  }
+
   try {
-    // Fetch all users from the "user" table
-    const users = await prisma.user.findMany();
+    const initialState: { resumeId: string; question: string } = {
+      resumeId,
+      question,
+    };
 
-    res.status(200).json({
-      message: "✅ Prisma connection successful!",
-      data: users,
-    });
+    // The final state will contain the generated answer
+    const finalState = await resumeChatAgent.invoke(initialState);
+    
+    // The 'END' node is the last one with a value
+    const finalAnswer = finalState.generation;
+
+    if (!finalAnswer) {
+      throw new Error("The agent failed to generate a response.");
+    }
+    
+    res.status(200).json({ answer: finalAnswer });
+
   } catch (error) {
-    console.error("❌ Prisma error:", error);
-    res.status(500).json({
-      message: "❌ Error connecting to Prisma",
-      error: error instanceof Error ? error.message : error,
-    });
+    console.error("Error during chat processing:", error);
+    res.status(500).json({ error: "An internal error occurred." });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Server is listening on http://localhost:${PORT}`);
+  console.log(`✨ Server is running on http://localhost:${PORT}`);
 });

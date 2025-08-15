@@ -2,14 +2,19 @@ import { Worker, Job } from "bullmq";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import pdfParse from "pdf-parse";
-import { google } from "@ai-sdk/google";
+// import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { PrismaClient } from "@prisma/client";
-import { z } from "zod"; // Keep this
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { z } from "zod";
 
 dotenv.config();
 
 const prisma = new PrismaClient();
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_API_KEY,
+});
 
 // ----- Job Data Interface -----
 interface ResumeAnalyseJobData {
@@ -76,7 +81,6 @@ const worker = new Worker<ResumeAnalyseJobData>(
       const resumeText = pdfData.text.trim();
 
       console.log("RESUME TEXT : ", resumeText);
-      
 
       if (!resumeText || resumeText.length < 50) {
         throw new Error("Resume text is too short or unreadable");
@@ -99,7 +103,7 @@ const worker = new Worker<ResumeAnalyseJobData>(
         ],
       });
       console.log("RESPONSE BEFORE VALIDATION : ", object);
-      
+
       // 4) Parse again to be 100% type-safe at runtime
       const validatedAnalysis: ResumeAnalysisType =
         AnalysisSchema.parse(object);
@@ -107,19 +111,19 @@ const worker = new Worker<ResumeAnalyseJobData>(
       console.log("RESPONSE AFTER VALIDATION : ", validatedAnalysis);
 
       // 5) Save to Postgres (upsert)
-      // await prisma.resumeAnalysis.upsert({
-      //   where: { resumeId },
-      //   create: {
-      //     resumeId,
-      //     atsScore: validatedAnalysis.atsScore ?? null,
-      //     analysis: validatedAnalysis,
-      //   },
-      //   update: {
-      //     atsScore: validatedAnalysis.atsScore ?? null,
-      //     analysis: validatedAnalysis,
-      //     updatedAt: new Date(),
-      //   },
-      // });
+      await prisma.resumeAnalysis.upsert({
+        where: { resumeId },
+        create: {
+          resumeId,
+          atsScore: validatedAnalysis.atsScore ?? null,
+          analysis: validatedAnalysis,
+        },
+        update: {
+          atsScore: validatedAnalysis.atsScore ?? null,
+          analysis: validatedAnalysis,
+          updatedAt: new Date(),
+        },
+      });
 
       console.log(`✅ Analysis saved for resume ${resumeId}`);
     } catch (error) {
