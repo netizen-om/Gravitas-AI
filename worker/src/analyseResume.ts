@@ -82,11 +82,7 @@ const worker = new Worker<ResumeAnalyseJobData>(
       // 3) Call Gemini 2.5 Flash for structured analysis
       const { object } = await generateObject({
         model: google("gemini-2.5-flash"),
-        
-        // v-- THE DEFINITIVE FIX --v
         schema: AnalysisSchema as any,
-        // ^-- THE DEFINITIVE FIX --^
-
         messages: [
           {
             role: "system",
