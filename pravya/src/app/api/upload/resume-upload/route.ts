@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prismadb";
 import { Readable } from "stream";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import { resumeProcessingQueue } from "@/lib/queues";
+import { resumeAnalyseQueue, resumeProcessingQueue } from "@/lib/queues";
 
 export async function POST(req: Request) {
   try {
@@ -66,6 +66,14 @@ export async function POST(req: Request) {
     })
 
     await resumeProcessingQueue.add("process-resume", {
+      resumeId: savedResume.id,
+      fileUrl: savedResume.fileUrl,
+      userId: savedResume.userId,
+      publicId : savedResume.publicId,
+      fileName : savedResume.fileName
+    });
+
+    await resumeAnalyseQueue.add("resume-analyse", {
       resumeId: savedResume.id,
       fileUrl: savedResume.fileUrl,
       userId: savedResume.userId,
