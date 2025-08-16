@@ -4,13 +4,12 @@ import fetch from "node-fetch";
 import pdfParse from "pdf-parse";
 // import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
-import { PrismaClient } from "@prisma/client";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
+import { prisma } from "./lib/prisma";
 
 dotenv.config();
 
-const prisma = new PrismaClient();
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_API_KEY,
