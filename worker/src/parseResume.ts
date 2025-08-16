@@ -1,11 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Worker } from "bullmq";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import dotenv from "dotenv";
 import fetch from "node-fetch";
 import { Blob } from "buffer";
 import { getVectorStore } from "./lib/vectorStore";
 
-dotenv.config();
 
 const worker = new Worker(
   "resume-processing",

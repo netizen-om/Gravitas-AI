@@ -26,9 +26,11 @@ app.post('/chat/:resumeId', async (req, res) => {
   try {
 
     const queryEmbedding = await embedding.embedQuery(question);
+    console.log(queryEmbedding);
+    
     const searchResult = await qdrantClient.search("pravya-resume", {
       vector: queryEmbedding,
-      limit: 3,
+      limit: 5,
       filter: {
         must: [{
           key: "resumeId",
