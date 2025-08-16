@@ -1,8 +1,8 @@
 import { QdrantVectorStore } from "@langchain/qdrant";
-import { embeddings } from "./embedding";
+import { embedding } from "./embedding";
 
 export const getVectorStore = async () => {
-  const store = await QdrantVectorStore.fromExistingCollection(embeddings, {
+  const store = await QdrantVectorStore.fromExistingCollection(embedding, {
     url: process.env.QDRANT_URL,
     collectionName: process.env.QDRANT_PARSED_RESUME_COLLECTION_NAME,
   });

@@ -40,6 +40,7 @@ const worker = new Worker(
       const store = await getVectorStore();
 
       await store.addDocuments(docsWithMetadata);
+      
       console.log("All docs added to Qdrant with metadata");
     } catch (error) {
       console.error("ERROR:", error);
