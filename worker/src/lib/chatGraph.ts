@@ -4,10 +4,10 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PrismaClient } from "@prisma/client";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { qdrantClient } from "./qdrant";
 
 // ----- INITIALIZATION -----
 const prisma = new PrismaClient();
-const qdrantClient = new QdrantClient({ url: process.env.QDRANT_URL });
 const embeddings = new GoogleGenerativeAIEmbeddings({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
