@@ -6,7 +6,10 @@ import express from "express";
 import { resumeChatAgent } from "./lib/chatGraph";
 import { embedding } from "./lib/embedding";
 import { qdrantClient } from "./lib/qdrant";
+import { google } from "./lib/googleForAISDK";
 import { prisma } from "./lib/prisma";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { generateText } from "ai";
 
 const app = express();
 
@@ -35,7 +38,6 @@ app.post("/chat/:resumeId", async (req, res) => {
 
   try {
     const queryEmbedding = await embedding.embedQuery(question);
-    console.log(queryEmbedding);
 
     const searchResult = await qdrantClient.search("pravya-resume", {
       vector: queryEmbedding,
@@ -62,14 +64,33 @@ app.post("/chat/:resumeId", async (req, res) => {
       analysisRecord.analysis === null
     ) {
       // want to perfrom error handling
-      res.status(500).json({ message : "analysis Record not found" });
+      res.status(500).json({ message: "analysis Record not found" });
     }
     const fullAnalysis = analysisRecord!.analysis as AnalysisJson;
     // return { analysisContext: fullAnalysis };
 
+    const prompt = `You are a helpful and encouraging resume assistant. Answer the user's question based on the provided context.
     
+    If the question is about resume improvements, errors, or formatting, primarily use the "Resume Analysis Data".
+    If the question is about skills, experience, or career advice, primarily use the "Relevant Resume Excerpts".
+    
+    ## Resume Analysis Data:
+    ${JSON.stringify(fullAnalysis, null, 2)}
+    
+    ## Relevant Resume Excerpts:
+    ${searchResult}
+    
+    Answer:`;
+    // const generation = await model.invoke(prompt);
+    // return { generation: generation.content.toString() };
 
-    res.status(200).json({ answer: searchResult });
+    const { text } = await generateText({
+      model: google('gemini-2.5-flash'),
+      system: prompt,
+      prompt: question,
+    });
+
+    res.status(200).json({ answer: text });
 
     // // The final state will contain the generated answer
     // const finalState = await resumeChatAgent.invoke(initialState);
