@@ -3,12 +3,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import { resumeChatAgent } from "./lib/chatGraph";
 import { embedding } from "./lib/embedding";
 import { qdrantClient } from "./lib/qdrant";
 import { google } from "./lib/googleForAISDK";
 import { prisma } from "./lib/prisma";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { generateText } from "ai";
 
 const app = express();
@@ -92,17 +90,6 @@ app.post("/chat/:resumeId", async (req, res) => {
 
     res.status(200).json({ answer: text });
 
-    // // The final state will contain the generated answer
-    // const finalState = await resumeChatAgent.invoke(initialState);
-
-    // // The 'END' node is the last one with a value
-    // const finalAnswer = finalState.generation;
-
-    // if (!finalAnswer) {
-    //   throw new Error("The agent failed to generate a response.");
-    // }
-
-    // res.status(200).json({ answer: finalAnswer });
   } catch (error) {
     console.error("Error during chat processing:", error);
     res.status(500).json({ error: "An internal error occurred." });
