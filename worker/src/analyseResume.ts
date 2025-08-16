@@ -1,5 +1,7 @@
-import { Worker, Job } from "bullmq";
 import dotenv from "dotenv";
+dotenv.config();
+
+import { Worker, Job } from "bullmq";
 import fetch from "node-fetch";
 import { z } from "zod";
 import pdfParse from "pdf-parse";
@@ -8,7 +10,6 @@ import { prisma } from "./lib/prisma";
 import { google } from "./lib/googleForAISDK";
 import { AnalysisSchema } from "./lib/zod"
 
-dotenv.config();
 
 // ----- Job Data Interface -----
 interface ResumeAnalyseJobData {
