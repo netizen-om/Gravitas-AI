@@ -5,12 +5,14 @@ export const AnalysisSchema = z.object({
   // --- Extracted Resume Content ---
   contactInfo: z.object({
     name: z.string().optional().describe("Full name of the candidate"),
-    email: z.string().email().optional().describe("Primary email address"),
+    // REMOVED .email()
+    email: z.string().optional().describe("Primary email address"),
     phone: z.string().optional().describe("Contact phone number"),
     location: z.string().optional().describe("City, State, Country"),
     links: z.array(z.object({
       label: z.string().optional().describe("The name of the site (e.g., GitHub, LinkedIn, Portfolio)"),
-      url: z.string().url().describe("The direct URL"),
+      // REMOVED .url()
+      url: z.string().describe("The direct URL"),
     })).default([]).describe("Array of personal or professional links"),
   }).optional(),
 
@@ -37,7 +39,8 @@ export const AnalysisSchema = z.object({
     name: z.string().describe("Name of the project"),
     description: z.string().describe("A brief description of the project"),
     technologies: z.array(z.string()).default([]).describe("List of technologies or skills used"),
-    link: z.string().url().optional().describe("A direct URL to the project (e.g., GitHub, live demo)"),
+    // REMOVED .url()
+    link: z.string().optional().describe("A direct URL to the project (e.g., GitHub, live demo)"),
   })).default([]),
 
   skills: z.object({

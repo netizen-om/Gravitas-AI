@@ -71,6 +71,7 @@ app.post("/chat/:resumeId", async (req, res) => {
     
     If the question is about resume improvements, errors, or formatting, primarily use the "Resume Analysis Data".
     If the question is about skills, experience, or career advice, primarily use the "Relevant Resume Excerpts".
+    And you are open to give your suggestions even if reference is not available in context.
     
     ## Resume Analysis Data:
     ${JSON.stringify(fullAnalysis, null, 2)}
