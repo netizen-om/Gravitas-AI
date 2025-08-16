@@ -1,19 +1,14 @@
 import { Worker, Job } from "bullmq";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
-import pdfParse from "pdf-parse";
-// import { google } from "@ai-sdk/google";
-import { generateObject } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
+import pdfParse from "pdf-parse";
+import { generateObject } from "ai";
 import { prisma } from "./lib/prisma";
+import { google } from "./lib/googleForAISDK";
+import { AnalysisSchema } from "./lib/zod"
 
 dotenv.config();
-
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY,
-});
 
 // ----- Job Data Interface -----
 interface ResumeAnalyseJobData {
@@ -21,39 +16,6 @@ interface ResumeAnalyseJobData {
   userId: string;
   resumeId: string;
 }
-
-// ----- Zod Schema for Analysis -----
-const AnalysisSchema = z.object({
-  atsScore: z.number().min(0).max(100).optional(),
-  grammarErrors: z
-    .array(
-      z.object({
-        error: z.string(),
-        suggestion: z.string(),
-      })
-    )
-    .default([]),
-  spellingErrors: z
-    .array(
-      z.object({
-        word: z.string(),
-        suggestion: z.string(),
-      })
-    )
-    .default([]),
-  formattingIssues: z
-    .array(
-      z.object({
-        issue: z.string(),
-        suggestion: z.string().optional(),
-      })
-    )
-    .default([]),
-  impactWords: z.array(z.string()).default([]),
-  missingKeywords: z.array(z.string()).default([]),
-  matchingKeywords: z.array(z.string()).default([]),
-  summary: z.string().optional(),
-});
 
 // ----- Inferred type -----
 type ResumeAnalysisType = z.infer<typeof AnalysisSchema>;
@@ -124,9 +86,9 @@ const worker = new Worker<ResumeAnalyseJobData>(
         },
       });
 
-      console.log(`✅ Analysis saved for resume ${resumeId}`);
+      console.log(`Analysis saved for resume ${resumeId}`);
     } catch (error) {
-      console.error("❌ ERROR:", error);
+      console.error("ERROR:", error);
       throw error;
     }
   },
