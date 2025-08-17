@@ -56,33 +56,34 @@ export async function POST(req: Request) {
     const result: any = await uploadStream();
     console.log("Cloudinary PDF URL:", result.secure_url);
 
-    const savedResume = await prisma.resume.create({
-      data : {
+    const resume = await prisma.resume.create({
+      data: {
         userId: session.user.id,
-        fileName: originalFileName,
+        fileName: file.name,
         fileUrl: result.secure_url,
         publicId: result.public_id,
-        status: "uploaded" // Set initial status
+        QdrantStatus: "uploaded", // Initial Qdrant status
+        AnalysisStatus: "pending"  // Initial analysis status
       }
     })
 
     await resumeProcessingQueue.add("process-resume", {
-      resumeId: savedResume.id,
-      fileUrl: savedResume.fileUrl,
-      userId: savedResume.userId,
-      publicId : savedResume.publicId,
-      fileName : savedResume.fileName
+      resumeId: resume.id,
+      fileUrl: resume.fileUrl,
+      userId: resume.userId,
+      publicId : resume.publicId,
+      fileName : resume.fileName
     });
 
     await resumeAnalyseQueue.add("resume-analyse", {
-      resumeId: savedResume.id,
-      fileUrl: savedResume.fileUrl,
-      userId: savedResume.userId,
-      publicId : savedResume.publicId,
-      fileName : savedResume.fileName
+      resumeId: resume.id,
+      fileUrl: resume.fileUrl,
+      userId: resume.userId,
+      publicId : resume.publicId,
+      fileName : resume.fileName
     });
 
-    return NextResponse.json({ success: true, resume: savedResume });
+    return NextResponse.json({ success: true, resume: resume });
   } catch (error: any) {
     console.error(error);
     return NextResponse.json({ error: error.message }, { status: 500 });

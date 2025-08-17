@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -20,7 +20,8 @@ interface Resume {
   id: string
   fileName: string
   fileUrl: string
-  status: string
+  QdrantStatus: string
+  AnalysisStatus: string
   createdAt: string
   updatedAt: string
   qdrantFileId?: string
@@ -39,8 +40,31 @@ const motivationalQuotes = [
   "Remember: Your resume is your personal brand story",
 ]
 
-const StatusBadge = ({ status }: { status: Resume["status"] }) => {
-  switch (status.toLowerCase()) {
+// Helper function to get overall status
+const getOverallStatus = (resume: Resume): string => {
+  if (resume.QdrantStatus === "error" || resume.AnalysisStatus === "error") {
+    return "error";
+  }
+  
+  if (resume.QdrantStatus === "completed" && resume.AnalysisStatus === "completed") {
+    return "completed";
+  }
+  
+  if (resume.AnalysisStatus === "analyzing") {
+    return "analyzing";
+  }
+  
+  if (resume.QdrantStatus === "parsing") {
+    return "parsing";
+  }
+  
+  return "uploaded";
+};
+
+const StatusBadge = ({ resume }: { resume: Resume }) => {
+  const overallStatus = getOverallStatus(resume);
+  
+  switch (overallStatus) {
     case "uploaded":
       return (
         <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
@@ -86,7 +110,7 @@ const StatusBadge = ({ status }: { status: Resume["status"] }) => {
       return (
         <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 border-gray-500/30">
           <div className="relative w-3 h-3 bg-gray-400 rounded-full"></div>
-          {status}
+          {overallStatus}
         </Badge>
       )
   }
@@ -105,6 +129,51 @@ export default function ResumeUploadPage() {
   const [isLoadingResumes, setIsLoadingResumes] = useState(true)
   const [resumesError, setResumesError] = useState<string | null>(null)
   const [hasInitialLoad, setHasInitialLoad] = useState(false)
+  const redisSubscriberRef = useRef<EventSource | null>(null)
+
+  // Redis Pub-Sub for real-time updates
+  useEffect(() => {
+    const connectToRedis = async () => {
+      try {
+        // Create EventSource for Server-Sent Events (SSE) as a simple alternative to Redis Pub-Sub
+        const eventSource = new EventSource('/api/resume/status-updates');
+        
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.resumeId) {
+              // Update the specific resume in state
+              setResumes(prevResumes => 
+                prevResumes.map(resume => 
+                  resume.id === data.resumeId 
+                    ? { ...resume, ...data }
+                    : resume
+                )
+              );
+            }
+          } catch (error) {
+            console.error('Error parsing status update:', error);
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error('EventSource error:', error);
+        };
+
+        redisSubscriberRef.current = eventSource;
+      } catch (error) {
+        console.error('Failed to connect to Redis Pub-Sub:', error);
+      }
+    };
+
+    connectToRedis();
+
+    return () => {
+      if (redisSubscriberRef.current) {
+        redisSubscriberRef.current.close();
+      }
+    };
+  }, []);
 
   // Fetch resumes from backend API
   const fetchResumes = useCallback(async () => {
@@ -135,10 +204,14 @@ export default function ResumeUploadPage() {
         // Always update the resumes state with the latest data from the server
         setResumes(sortedResumes)
         
-        if (!hasInitialLoad) {
-          setHasInitialLoad(true)
-          console.log('Initial load of resumes:', sortedResumes.map((r: Resume) => ({ fileName: r.fileName, status: r.status })))
-        }
+                 if (!hasInitialLoad) {
+           setHasInitialLoad(true)
+           console.log('Initial load of resumes:', sortedResumes.map((r: Resume) => ({ 
+             fileName: r.fileName, 
+             QdrantStatus: r.QdrantStatus, 
+             AnalysisStatus: r.AnalysisStatus 
+           })))
+         }
       } else {
         setResumes([])
       }
@@ -162,9 +235,9 @@ export default function ResumeUploadPage() {
       return // Don't poll until initial load is complete
     }
     
-    const hasActiveResumes = resumes.some(resume => 
-      ['uploaded', 'parsing', 'analyzing'].includes(resume.status.toLowerCase())
-    )
+         const hasActiveResumes = resumes.some(resume => 
+       ['uploaded', 'parsing', 'analyzing'].includes(getOverallStatus(resume).toLowerCase())
+     )
     
     if (!hasActiveResumes) {
       return // Don't poll if no active resumes
@@ -602,22 +675,22 @@ export default function ResumeUploadPage() {
                            {new Date(resume.createdAt).toLocaleDateString()} • {resume.fileUrl ? 'File Available' : 'No File'}
                          </p>
                          {/* Simple progress indicator */}
-                         {['uploaded', 'parsing', 'analyzing'].includes(resume.status.toLowerCase()) && (
+                         {['uploaded', 'parsing', 'analyzing'].includes(getOverallStatus(resume).toLowerCase()) && (
                            <div className="flex items-center space-x-1 mt-1">
                              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                             <div className={`w-2 h-2 rounded-full ${resume.status === 'parsing' || resume.status === 'analyzing' ? 'bg-yellow-400' : 'bg-gray-300'}`}></div>
-                             <div className={`w-2 h-2 rounded-full ${resume.status === 'analyzing' ? 'bg-purple-400' : 'bg-gray-300'}`}></div>
-                             <div className={`w-2 h-2 rounded-full ${resume.status === 'completed' ? 'bg-green-400' : 'bg-gray-300'}`}></div>
+                             <div className={`w-2 h-2 rounded-full ${getOverallStatus(resume) === 'parsing' || getOverallStatus(resume) === 'analyzing' ? 'bg-yellow-400' : 'bg-gray-300'}`}></div>
+                             <div className={`w-2 h-2 rounded-full ${getOverallStatus(resume) === 'analyzing' ? 'bg-purple-400' : 'bg-gray-300'}`}></div>
+                             <div className={`w-2 h-2 rounded-full ${getOverallStatus(resume) === 'completed' ? 'bg-green-400' : 'bg-gray-300'}`}></div>
                            </div>
                          )}
                        </div>
                      </div>
 
                     <div className="flex items-center space-x-3">
-                      <StatusBadge status={resume.status} />
+                      <StatusBadge resume={resume} />
 
                       <div className="flex space-x-1">
-                                                 {resume.status === "completed" && (
+                                                                          {getOverallStatus(resume) === "completed" && (
                            <Button
                              variant="ghost"
                              size="sm"
@@ -629,7 +702,7 @@ export default function ResumeUploadPage() {
                            </Button>
                          )}
 
-                                                 {resume.status === "error" && (
+                         {getOverallStatus(resume) === "error" && (
                            <Button
                              variant="ghost"
                              size="sm"

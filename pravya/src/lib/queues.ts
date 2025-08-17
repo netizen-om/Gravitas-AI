@@ -1,5 +1,10 @@
 import { Queue } from "bullmq";
-import { redisConnection } from "./redis";
+import { redis } from "./redis";
 
-export const resumeProcessingQueue = new Queue("resume-processing", redisConnection);
-export const resumeAnalyseQueue = new Queue("resume-analyse", redisConnection);
+export const resumeProcessingQueue = new Queue("resume-processing", {
+  connection: redis,
+});
+
+export const resumeAnalyseQueue = new Queue("resume-analyse", {
+  connection: redis,
+});

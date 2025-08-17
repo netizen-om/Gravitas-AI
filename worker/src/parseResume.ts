@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import { Blob } from "buffer";
 import { getVectorStore } from "./lib/vectorStore";
 import { prisma } from "./lib/prisma";
+import { publishResumeUpdate } from "./lib/redis";
 
 const worker = new Worker(
   "resume-processing",
@@ -16,11 +17,14 @@ const worker = new Worker(
     try {
       console.log("Job Data: ", job.data);
 
-      // Update status to parsing
+      // Update QdrantStatus to parsing
       await prisma.resume.update({
         where: { id: resumeId },
-        data: { status: "parsing" }
+        data: { QdrantStatus: "parsing" }
       });
+
+      // Publish status update
+      await publishResumeUpdate(resumeId, { QdrantStatus: "parsing" });
 
       console.log("Downloading from Cloudinary:", fileUrl);
       const response = await fetch(fileUrl);
@@ -50,35 +54,26 @@ const worker = new Worker(
       
       console.log("All docs added to Qdrant with metadata");
 
-      // Check if analysis is also complete before setting status
-      // Since both workers run concurrently, we need to ensure both are done
-      const resume = await prisma.resume.findUnique({
+      // Update QdrantStatus to completed
+      await prisma.resume.update({
         where: { id: resumeId },
-        select: { status: true }
+        data: { QdrantStatus: "completed" }
       });
 
-      if (resume && resume.status === "analyzing") {
-        // Analysis is complete, set status to completed
-        await prisma.resume.update({
-          where: { id: resumeId },
-          data: { status: "completed" }
-        });
-      } else if (resume && resume.status === "parsing") {
-        // Analysis is still in progress, set status to "analyzing" to show parsing is complete
-        await prisma.resume.update({
-          where: { id: resumeId },
-          data: { status: "analyzing" }
-        });
-      }
+      // Publish status update
+      await publishResumeUpdate(resumeId, { QdrantStatus: "completed" });
 
     } catch (error) {
       console.error("ERROR:", error);
       
-      // Update status to error if something goes wrong
+      // Update QdrantStatus to error if something goes wrong
       await prisma.resume.update({
         where: { id: resumeId },
-        data: { status: "error" }
+        data: { QdrantStatus: "error" }
       });
+
+      // Publish error status
+      await publishResumeUpdate(resumeId, { QdrantStatus: "error" });
     }
   },
   {

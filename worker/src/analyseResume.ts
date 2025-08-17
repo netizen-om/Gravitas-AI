@@ -9,7 +9,7 @@ import { generateObject } from "ai";
 import { prisma } from "./lib/prisma";
 import { google } from "./lib/googleForAISDK";
 import { AnalysisSchema } from "./lib/zod"
-
+import { publishResumeUpdate } from "./lib/redis";
 
 // ----- Job Data Interface -----
 interface ResumeAnalyseJobData {
@@ -29,6 +29,15 @@ const worker = new Worker<ResumeAnalyseJobData>(
     
     try {
       console.log("Job Data: ", job.data);
+
+      // Update AnalysisStatus to analyzing
+      await prisma.resume.update({
+        where: { id: resumeId },
+        data: { AnalysisStatus: "analyzing" }
+      });
+
+      // Publish status update
+      await publishResumeUpdate(resumeId, { AnalysisStatus: "analyzing" });
 
       // 1) Download PDF
       console.log("Downloading from Cloudinary:", fileUrl);
@@ -90,41 +99,26 @@ const worker = new Worker<ResumeAnalyseJobData>(
 
       console.log(`Analysis saved for resume ${resumeId}`);
 
-      // Check if parsing is also complete before setting status to completed
-      // Since both workers run concurrently, we need to ensure both are done
-      const resume = await prisma.resume.findUnique({
+      // Update AnalysisStatus to completed
+      await prisma.resume.update({
         where: { id: resumeId },
-        select: { status: true }
+        data: { AnalysisStatus: "completed" }
       });
 
-      if (resume && resume.status === "parsing") {
-        // Parsing is still in progress, set status to "analyzing" to show analysis is complete
-        await prisma.resume.update({
-          where: { id: resumeId },
-          data: { status: "analyzing" }
-        });
-      } else if (resume && resume.status === "analyzing") {
-        // Both parsing and analysis are complete
-        await prisma.resume.update({
-          where: { id: resumeId },
-          data: { status: "completed" }
-        });
-      } else {
-        // Analysis is complete, but status might be something else
-        await prisma.resume.update({
-          where: { id: resumeId },
-          data: { status: "completed" }
-        });
-      }
+      // Publish status update
+      await publishResumeUpdate(resumeId, { AnalysisStatus: "completed" });
 
     } catch (error) {
       console.error("ERROR:", error);
       
-      // Update status to error if analysis fails
+      // Update AnalysisStatus to error if analysis fails
       await prisma.resume.update({
         where: { id: resumeId },
-        data: { status: "error" }
+        data: { AnalysisStatus: "error" }
       });
+
+      // Publish error status
+      await publishResumeUpdate(resumeId, { AnalysisStatus: "error" });
       
       throw error;
     }
