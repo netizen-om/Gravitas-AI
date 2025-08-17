@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { getCurrentUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
 import { render } from "@react-email/components";
+import VerifyEmailTemplate from '../../../../../emails/VerifyEmailTemplate';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
