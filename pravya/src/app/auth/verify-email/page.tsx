@@ -47,19 +47,21 @@ export default function VerifyEmailPage() {
   }, [token, router]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
-      <h1 className="text-2xl font-semibold mb-4">Email Verification</h1>
-      <p
-        className={`text-lg ${
-          status === "success"
-            ? "text-green-600"
-            : status === "error"
-            ? "text-red-600"
-            : "text-gray-600"
-        }`}
-      >
-        {message}
-      </p>
-    </div>
+    <>
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold mb-4 text-white">Email Verification</h1>
+        <p
+          className={`text-lg ${
+            status === "success"
+              ? "text-green-400"
+              : status === "error"
+              ? "text-red-400"
+              : "text-gray-400"
+          }`}
+        >
+          {message}
+        </p>
+      </div>
+    </>
   );
 }

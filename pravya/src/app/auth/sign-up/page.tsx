@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { z } from "zod";
-import LeftArrow from "@/components/icons/LeftArrow";
 import GoogleLogo from "@/components/icons/GoogleLogo";
 import GithubLogo from "@/components/GithubLogo";
 import axios from "axios";
-import Image from "next/image";
 import { getErrorMessage } from "@/utlis/getErrorMessage";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { AuthInput } from "@/components/ui/auth-input";
+import { AuthButton } from "@/components/ui/auth-button";
+import { SocialLoginButton } from "@/components/ui/social-login-button";
 
 interface SignupFormProps {
   className?: string;
@@ -155,28 +156,7 @@ export default function Signup({ className = "" }: SignupFormProps) {
   }
 
   return (
-    <div className={`bg-black min-h-screen ${className}`}>
-      <div className="flex overflow-x-auto overflow-y-auto justify-center items-center items-start px-4 min-h-screen bg-black max-sm:px-2 max-sm:min-h-screen">
-        <div className="fixed inset-0 z-0 pointer-events-none select-none min-h-screen w-auto">
-          <Image
-            src="/bgImg/background-auth.png"
-            alt="Background Image"
-            fill
-            
-            className="absolute inset-0 max-w-full align-middle pointer-events-none select-none border-black border-opacity-0 decoration-black decoration-opacity-0 outline-black outline-opacity-0 overflow-x-clip overflow-y-clip size-full text-black text-opacity-0"
-            priority
-          />
-        </div>
-
-        <Link
-          href="/"
-          className="flex absolute top-6 left-6 z-10 gap-0 gap-y-0 gap-y-0 justify-center items-center px-4 h-10 text-sm font-semibold leading-5 rounded-2xl border-solid ease-in-out cursor-pointer select-none border-[0.8px] border-black border-opacity-0 decoration-neutral-400 duration-[0.2s] outline-neutral-400 text-neutral-400 transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]"
-        >
-          <LeftArrow />
-          Home
-        </Link>
-
-        <main className="relative z-10 pt-8 w-full max-w-lg max-sm:pt-4 max-sm:max-w-full">
+    <>
           <div className="mb-6 text-center">
             {/* Resend Logo  */}
             {/* <svg
@@ -246,27 +226,13 @@ export default function Signup({ className = "" }: SignupFormProps) {
           </div>
 
           <div className="flex gap-4 gap-4 gap-y-4 gap-y-4 items-center mb-4">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="group hover:bg-white/90 hover:text-black inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
-            >
-              <GoogleLogo />
-              <span className="text-sm group-hover:text-black font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
-                Login with Google
-              </span>
-            </button>
+            <SocialLoginButton onClick={handleGoogleSignIn} icon={<GoogleLogo />}>
+              Login with Google
+            </SocialLoginButton>
 
-            <button
-              type="button"
-              onClick={handleGitHubSignIn}
-              className="group hover:bg-white/90 hover:text-black inline-flex relative gap-0 gap-y-0 gap-y-0 justify-center items-center px-5 w-full h-12 font-semibold text-center text-white bg-origin-border rounded-2xl border-solid ease-in-out cursor-pointer outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
-            >
-              <GithubLogo />
-              <span className="text-sm group-hover:text-black font-semibold leading-5 text-center text-white border-white cursor-pointer outline-white select-none decoration-white">
-                Login with GitHub
-              </span>
-            </button>
+            <SocialLoginButton onClick={handleGitHubSignIn} icon={<GithubLogo />}>
+              Login with GitHub
+            </SocialLoginButton>
           </div>
 
           <div className="flex justify-center items-center my-6">
@@ -286,79 +252,32 @@ export default function Signup({ className = "" }: SignupFormProps) {
           </div>
 
           <form autoComplete="off" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-2 gap-2 gap-y-2 gap-y-2 mb-5">
-              <label
-                htmlFor="email"
-                className="text-sm leading-5 cursor-default border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="alan.turing@example.com"
-                id="email"
-                name="email"
-                className='relative px-4 w-full h-12 text-sm leading-5 focus:outline-gray-950 text-white cursor-textbackdrop-blur-[25px] bg-origin-border rounded-2xl border-solid ease-in-out outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]'
-                autoFocus
-                required
-                value={email}
-                onChange={handleEmailChange}
-              />
-              {errors.email && (
-                <div className="mt-1 text-xs text-red-500">
-                  {errors.email}
-                </div>
-              )}
-            </div>
+            <AuthInput
+              id="email"
+              name="email"
+              type="email"
+              placeholder="alan.turing@example.com"
+              value={email}
+              onChange={handleEmailChange}
+              required
+              autoFocus
+              error={errors.email}
+            />
 
-            <div className="flex flex-col gap-2 gap-2 gap-y-2 gap-y-2 mb-5">
-              <label
-                htmlFor="password"
-                className="text-sm leading-5 cursor-default border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••••••"
-                id="password"
-                name="password"
-                className=' relative px-4 w-full h-12 text-sm leading-5 focus:outline-gray-950 text-white cursor-textbackdrop-blur-[25px] bg-origin-border rounded-2xl border-solid ease-in-out outline-white select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] decoration-white duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]'
-                required
-                value={password}
-                onChange={handlePasswordChange}
-              />
-              {errors.password && (
-                <div className="mt-1 text-xs text-red-500">
-                  {errors.password}
-                </div>
-              )}
-            </div>
+            <AuthInput
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••••••"
+              value={password}
+              onChange={handlePasswordChange}
+              required
+              error={errors.password}
+            />
 
-            <button
-              type="submit"
-              className="group inline-flex hover:bg-white/90 hover:text-black relative gap-0 gap-y-0 justify-center items-center px-5 w-full h-12 text-sm font-semibold leading-5 text-center bg-origin-border rounded-2xl border-solid ease-in-out select-none backdrop-blur-[25px] bg-[linear-gradient(104deg,rgba(253,253,253,0.05)_5%,rgba(240,240,228,0.1))] bg-black bg-opacity-0 border-[1.6px] border-[oklab(0.999994_0.0000455678_0.0000200868_/_0.05)] duration-[0.2s] shadow-[rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0)_0px_0px_0px_0px,rgba(0,0,0,0.1)_0px_1px_3px_0px,rgba(0,0,0,0.1)_0px_1px_2px_-1px]"
-              disabled={!isFormValid() || isLoading}
-              style={{
-                color:
-                  isFormValid() && !isLoading
-                    ? "rgb(255, 255, 255)"
-                    : "oklab(0.999994 0.0000455678 0.0000200868 / 0.5)",
-                cursor:
-                  isFormValid() && !isLoading ? "pointer" : "not-allowed",
-                opacity: isFormValid() && !isLoading ? "1" : "0.3",
-                outlineColor:
-                  isFormValid() && !isLoading
-                    ? "rgb(255, 255, 255)"
-                    : "oklab(0.999994 0.0000455678 0.0000200868 / 0.5)",
-                textDecorationColor:
-                  isFormValid() && !isLoading
-                    ? "rgb(255, 255, 255)"
-                    : "oklab(0.999994 0.0000455678 0.0000200868 / 0.5)",
-              }}
-            >
-              <span className="group-hover:text-black">{isLoading ? "Creating Account..." : "Create Account"}</span>
-            </button> 
+            <AuthButton type="submit" disabled={!isFormValid() || isLoading}>
+              {isLoading ? "Creating Account..." : "Create Account"}
+            </AuthButton> 
           </form>
 
           <p className="mt-8 text-xs leading-4 text-center border-neutral-400 decoration-neutral-400 outline-neutral-400 text-neutral-400">
@@ -388,8 +307,6 @@ export default function Signup({ className = "" }: SignupFormProps) {
             </a>
             .
           </p>
-        </main>
-      </div>
-    </div>
+    </>
   );
 }
