@@ -1,5 +1,3 @@
-// emails/VerifyEmailTemplate.tsx
-
 import {
   Body,
   Button,
@@ -9,166 +7,161 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   Section,
   Text,
 } from '@react-email/components';
 import * as React from 'react';
 
-// Define the props for our component
-interface VerifyEmailProps {
-  name?: string;
-  verificationCode: string;
-  verificationLink: string;
+interface PravyaAiMagicLinkEmailProps {
+  magicLink?: string;
 }
 
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : 'http://localhost:3000';
 
-export default function VerifyEmailTemplate({
-  name = 'there',
-  verificationCode,
-  verificationLink,
-}: VerifyEmailProps) {
-  return (
-    <Html>
-      <Head />
-      <Preview>Confirm your email address</Preview>
-      <Body style={main}>
-        <Container style={container}>
-          <Section style={logoContainer}>
-            {/* You can replace this with your own logo */}
-            <Img
-              src={`${baseUrl}/static/logo.png`} // Replace with your logo's path
-              width="120"
-              height="35"
-              alt="Our Logo"
-            />
-          </Section>
-          <Heading style={h1}>Verify Your Email Address</Heading>
-          <Text style={text}>
-            Hello {name},
+export const PravyaAiMagicLinkEmail = ({
+  magicLink,
+}: PravyaAiMagicLinkEmailProps) => (
+  <Html>
+    <Head />
+    <Preview>Your Magic Link for Pravya AI</Preview>
+    <Body style={main}>
+      <Container style={container}>
+        <Section style={header}>
+          <table cellPadding="0" cellSpacing="0" align="center">
+            <tbody>
+              <tr>
+                <td style={{ verticalAlign: 'middle' }}>
+                  <Img
+                    src={`${baseUrl}/static/pravya-logo-dark.png`} // Replace with your dark logo path
+                    width={36}
+                    height={36}
+                    alt="Pravya AI Logo"
+                  />
+                </td>
+                <td style={{ verticalAlign: 'middle', paddingLeft: '12px' }}>
+                  <Text style={brandText}>Pravya AI</Text>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </Section>
+        <Heading style={heading}>Verfiy your email</Heading>
+        <Section style={body}>
+          <Text style={paragraph}>
+            Click the button below to securely verify your account.
           </Text>
-          <Text style={text}>
-            Thank you for signing up! To complete your registration, please
-            verify your email by clicking the button below or by using the
-            following verification code.
+          <Button style={button} href={magicLink}>
+            Verify email
+          </Button>
+          <Text style={subtext}>
+            If you didn’t request this, please ignore this email.
           </Text>
-          <Section style={codeContainer}>
-            <Text style={code}>{verificationCode}</Text>
-          </Section>
-          <Section style={buttonContainer}>
-            <Button style={button} href={verificationLink}>
-              Verify Email
-            </Button>
-          </Section>
-          <Text style={text}>
-            If the button above does not work, you can also copy and paste this
-            link into your browser:
-          </Text>
-          <Link href={verificationLink} style={link}>
-            {verificationLink}
-          </Link>
-          <Hr style={hr} />
-          <Text style={footer}>
-            This email was intended for <span style={span}>{name}</span>. If you did not sign up for this account, you can
-            disregard this email.
-          </Text>
-        </Container>
-      </Body>
-    </Html>
-  );
-}
+        </Section>
+        <Hr style={hr} />
+        <Section style={footer}>
+          <Text style={footerText}>Pravya AI</Text>
+          <Text style={footerText}>Your interview advantage, powered by AI.</Text>
+        </Section>
+      </Container>
+    </Body>
+  </Html>
+);
 
-// Styles for the email
-const main: React.CSSProperties = {
-  backgroundColor: '#0f172a', // slate-900
+// This is for previewing in the React Email dev server
+PravyaAiMagicLinkEmail.PreviewProps = {
+  magicLink: 'https://example.com', // Changed to a valid placeholder URL
+} as PravyaAiMagicLinkEmailProps;
+
+export default PravyaAiMagicLinkEmail;
+
+const main = {
+  backgroundColor: '#f6f9fc',
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    '"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+  // Add some padding to the body for spacing on smaller screens
+  padding: '20px 0',
 };
 
-const container: React.CSSProperties = {
+const container = {
+  backgroundColor: '#ffffff',
+  // Center the container horizontally
   margin: '0 auto',
-  padding: '20px 0 48px',
-  width: '580px',
-  backgroundColor: '#1e293b', // slate-800
-  borderRadius: '8px',
+  // Set a max-width for desktop clients, but allow it to be flexible
+  maxWidth: '600px',
+  width: '100%',
+  padding: '48px',
+  borderRadius: '12px',
+  border: '1px solid #e6ebf1',
+  // Removed boxShadow with rgba for Outlook compatibility
 };
 
-const logoContainer: React.CSSProperties = {
+const header = {
   textAlign: 'center' as const,
-  marginTop: '24px',
+  margin: '0 auto 24px auto',
 };
 
-const h1: React.CSSProperties = {
-  color: '#f8fafc', // slate-50
-  fontSize: '24px',
-  fontWeight: 'bold',
+const brandText = {
+  color: '#1a202c', // Very dark gray
+  fontSize: '20px',
+  fontWeight: '600',
+  margin: '0',
+  padding: '0',
+  lineHeight: '1',
+};
+
+const heading = {
+  fontSize: '32px',
+  fontWeight: '700',
   textAlign: 'center' as const,
+  color: '#1a202c', // Very dark gray
+  margin: '30px 0',
+};
+
+const body = {
   margin: '24px 0',
 };
 
-const text: React.CSSProperties = {
-  color: '#cbd5e1', // slate-300
+const paragraph = {
   fontSize: '16px',
   lineHeight: '26px',
-  padding: '0 40px',
-};
-
-const codeContainer: React.CSSProperties = {
-  background: '#0f172a', // slate-900
-  borderRadius: '4px',
-  margin: '16px auto',
-  padding: '16px',
-  width: '280px',
   textAlign: 'center' as const,
+  color: '#4a5568', // Medium gray
 };
 
-const code: React.CSSProperties = {
-  color: '#f8fafc', // slate-50
-  fontFamily: 'monospace',
-  fontSize: '28px',
-  fontWeight: 'bold',
-  letterSpacing: '0.5em',
-};
-
-const buttonContainer: React.CSSProperties = {
-  textAlign: 'center' as const,
-  marginTop: '24px',
-};
-
-const button: React.CSSProperties = {
-  backgroundColor: '#2563eb', // blue-600
-  borderRadius: '6px',
-  color: '#fff',
+const button = {
+  backgroundColor: '#000000',
+  color: '#ffffff',
   fontSize: '16px',
-  fontWeight: 'bold',
+  fontWeight: '600',
   textDecoration: 'none',
   textAlign: 'center' as const,
-  padding: '12px 24px',
+  display: 'block',
+  padding: '14px 0',
+  margin: '32px auto',
+  borderRadius: '8px',
 };
 
-const link: React.CSSProperties = {
-  color: '#2563eb', // blue-600
+const subtext = {
+  ...paragraph,
   fontSize: '14px',
-  wordBreak: 'break-all' as const,
-  padding: '0 40px',
+  color: '#718096', // Soft gray
 };
 
-const hr: React.CSSProperties = {
-  borderColor: '#334155', // slate-700
-  margin: '20px 0',
+const hr = {
+  borderColor: '#e6ebf1',
+  margin: '48px 0',
 };
 
-const span: React.CSSProperties = {
-  color: '#94a3b8' // slate-400
-}
+const footer = {
+  textAlign: 'center' as const,
+};
 
-const footer: React.CSSProperties = {
-  color: '#64748b', // slate-500
+const footerText = {
+  color: '#a0aec0', // Light gray
   fontSize: '12px',
-  lineHeight: '24px',
-  padding: '0 40px',
+  lineHeight: '18px',
+  margin: '0',
 };
