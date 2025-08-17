@@ -41,9 +41,9 @@ export async function POST(req: Request) {
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: "resumes",
-            public_id: uniqueFileName, // custom name in Cloudinary
+            public_id: uniqueFileName, 
             resource_type: "raw",
-            overwrite: false, // avoid replacing existing files
+            overwrite: false, 
           },
           (error, result) => {
             if (error) reject(error);
