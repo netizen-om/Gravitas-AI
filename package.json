@@ -1,0 +1,25 @@
+{
+  "name": "pravya_ai",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:all": "concurrently \"cd pravya && npm run dev\" \"cd worker && npm run dev\" \"cd worker && npm run dev:parser\" \"cd worker && npm run dev:analyse\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netizen-om/Gravitas-AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/netizen-om/Gravitas-AI/issues"
+  },
+  "homepage": "https://github.com/netizen-om/Gravitas-AI#readme",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
