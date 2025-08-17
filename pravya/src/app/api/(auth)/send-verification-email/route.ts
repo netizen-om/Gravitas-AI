@@ -1,8 +1,6 @@
 // app/api/auth/send-verification-email/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prismadb";
-import { resend } from "@/lib/resend";
 import jwt from "jsonwebtoken";
 import { getCurrentUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
