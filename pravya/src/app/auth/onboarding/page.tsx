@@ -258,24 +258,6 @@ export default function Onboarding() {
             />
           </div>
 
-          {/* Optional: Add email field if you want to collect it */}
-          {/*
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm text-gray-400">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={userEmail}
-              onChange={handleEmailChange}
-              placeholder="john@example.com"
-              required
-              className={INPUT_CLASSES}
-            />
-          </div>
-          */}
-
           <button
             type="submit"
             disabled={!isUsernameValid}

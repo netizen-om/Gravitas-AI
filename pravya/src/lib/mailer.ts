@@ -2,16 +2,11 @@ import nodemailer from "nodemailer";
 
 // Create a transporter using Mailtrap credentials
 export const transporter = nodemailer.createTransport({
-  host: process.env.MAILTRAP_HOST as string,
-  port: parseInt(process.env.MAILTRAP_PORT as string) || 2525,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.MAILTRAP_USER as string,
-    pass: process.env.MAILTRAP_PASS as string,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
+  service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
+      },
 });
 
 // Email sending function
@@ -36,7 +31,7 @@ export async function sendEmail({
     });
     
     const info = await transporter.sendMail({
-      from: '"Pravya AI" <noreply@pravya-ai.com>',
+      from: process.env.EMAIL_SERVER_USER,
       to,
       subject,
       text,
