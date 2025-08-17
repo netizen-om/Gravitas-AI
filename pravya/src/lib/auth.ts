@@ -6,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { getServerSession, NextAuthOptions } from "next-auth"
 
-// Import User type that matches NextAuth requirements
 interface User {
   id: string;
   name: string;
@@ -82,7 +81,6 @@ export const authOptions: NextAuthOptions = {
     signIn : "/auth/sign-in",
     error: "/auth/sign-in",
   },
-  debug: process.env.NODE_ENV === "development",
 };
 
 export const getCurrentUser = async () => {
