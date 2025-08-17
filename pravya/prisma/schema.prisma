@@ -110,7 +110,8 @@ model Resume {
   fileName       String
   publicId       String
   fileUrl        String
-  status         String          @default("uploaded")
+  QdrantStatus   String          @default("uploadeding")
+  AnalysisStatus   String          @default("pending")
   qdrantFileId   String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
