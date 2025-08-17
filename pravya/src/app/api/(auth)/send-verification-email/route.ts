@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { getCurrentUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/mailer";
+import { render } from "@react-email/components";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -34,6 +35,14 @@ export async function POST(req: NextRequest) {
 
     const verifyUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
     console.log("Attempting to send verification email to:", currentUser.email);
+
+    const emailHtml = render(
+      <VerifyEmailTemplate
+        name={name}
+        verificationCode={verificationCode}
+        verificationLink={verificationLink}
+      />
+    );
     
     try {
       // Send the email
