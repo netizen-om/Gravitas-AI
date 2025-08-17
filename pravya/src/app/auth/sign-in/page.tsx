@@ -142,7 +142,7 @@ export default function SignIn({ className = "" }) {
             </span>
           </div>
 
-          <div className="flex gap-4 gap-4 gap-y-4 gap-y-4 items-center mb-4">
+          <div className="flex gap-4 gap-y-4 items-center mb-4">
             <SocialLoginButton onClick={handleGoogleSignIn} icon={<GoogleLogo />}>
               Login with Google
             </SocialLoginButton>

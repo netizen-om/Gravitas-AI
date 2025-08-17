@@ -11,12 +11,12 @@
     if (typeof window !== 'undefined') {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-        // Enable debug mode in development
+        //@ts-ignore
+        disable: process.env.NODE_ENV === 'development',
         loaded: (posthog) => {
         if (process.env.NODE_ENV === 'development') posthog.debug();
         },
-        // This ensures users are only identified after they log in
-        person_profiles: 'identified_only',
+        person_profiles: 'always',
     });
     }
 
