@@ -62,6 +62,7 @@ export async function POST(req: Request) {
         fileName: originalFileName,
         fileUrl: result.secure_url,
         publicId: result.public_id,
+        status: "uploaded" // Set initial status
       }
     })
 

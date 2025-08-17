@@ -43,23 +43,16 @@ const StatusBadge = ({ status }: { status: Resume["status"] }) => {
   switch (status.toLowerCase()) {
     case "uploaded":
       return (
-        <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
-          <CheckCircle className="w-3 h-3 mr-1" />
+        <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
           Uploaded
         </Badge>
       )
-    case "uploading":
-      return (
-        <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-          Uploading
-        </Badge>
-      )
-    case "processing":
+    case "parsing":
       return (
         <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
           <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-          Processing
+          Parsing
         </Badge>
       )
     case "analyzing":
@@ -92,9 +85,7 @@ const StatusBadge = ({ status }: { status: Resume["status"] }) => {
     default:
       return (
         <Badge variant="secondary" className="bg-gray-500/20 text-gray-400 border-gray-500/30">
-          <div className="w-3 h-3 mr-1 relative">
-            <div className="relative w-3 h-3 bg-gray-400 rounded-full"></div>
-          </div>
+          <div className="relative w-3 h-3 bg-gray-400 rounded-full"></div>
           {status}
         </Badge>
       )
@@ -172,7 +163,7 @@ export default function ResumeUploadPage() {
     }
     
     const hasActiveResumes = resumes.some(resume => 
-      ['uploading', 'processing', 'analyzing'].includes(resume.status.toLowerCase())
+      ['uploaded', 'parsing', 'analyzing'].includes(resume.status.toLowerCase())
     )
     
     if (!hasActiveResumes) {
@@ -323,8 +314,6 @@ export default function ResumeUploadPage() {
         throw new Error(`Upload failed: ${response.statusText}`)
       }
 
-      const result = await response.json()
-      
       // Complete the progress bar
       setUploadProgress(100)
       clearInterval(uploadInterval)
@@ -364,7 +353,7 @@ export default function ResumeUploadPage() {
     }
   }
 
-  const handleRetry = (id: string) => {
+  const handleRetry = () => {
     // In a real implementation, you would call an API to retry the analysis
     // For now, we'll simulate it with a timeout and then refresh from server
     setTimeout(() => {
@@ -603,44 +592,53 @@ export default function ResumeUploadPage() {
                     className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border/50 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.01] animate-in fade-in-0 slide-in-from-bottom-2"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{resume.fileName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(resume.createdAt).toLocaleDateString()} • {resume.fileUrl ? 'File Available' : 'No File'}
-                        </p>
-                      </div>
-                    </div>
+                                         <div className="flex items-center space-x-4">
+                       <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                         <FileText className="w-5 h-5 text-primary" />
+                       </div>
+                       <div>
+                         <p className="font-medium text-foreground">{resume.fileName}</p>
+                         <p className="text-sm text-muted-foreground">
+                           {new Date(resume.createdAt).toLocaleDateString()} • {resume.fileUrl ? 'File Available' : 'No File'}
+                         </p>
+                         {/* Simple progress indicator */}
+                         {['uploaded', 'parsing', 'analyzing'].includes(resume.status.toLowerCase()) && (
+                           <div className="flex items-center space-x-1 mt-1">
+                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                             <div className={`w-2 h-2 rounded-full ${resume.status === 'parsing' || resume.status === 'analyzing' ? 'bg-yellow-400' : 'bg-gray-300'}`}></div>
+                             <div className={`w-2 h-2 rounded-full ${resume.status === 'analyzing' ? 'bg-purple-400' : 'bg-gray-300'}`}></div>
+                             <div className={`w-2 h-2 rounded-full ${resume.status === 'completed' ? 'bg-green-400' : 'bg-gray-300'}`}></div>
+                           </div>
+                         )}
+                       </div>
+                     </div>
 
                     <div className="flex items-center space-x-3">
                       <StatusBadge status={resume.status} />
 
                       <div className="flex space-x-1">
-                        {(resume.status === "completed" || resume.status === "uploaded") && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewResume(resume)}
-                            className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary transition-all duration-200 hover:scale-110"
-                            title="View Resume"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        )}
+                                                 {resume.status === "completed" && (
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleViewResume(resume)}
+                             className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary transition-all duration-200 hover:scale-110"
+                             title="View Analysis"
+                           >
+                             <Eye className="w-4 h-4" />
+                           </Button>
+                         )}
 
-                        {resume.status === "error" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRetry(resume.id)}
-                            className="h-8 w-8 p-0 hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-200 hover:scale-110"
-                          >
-                            <RotateCcw className="w-4 h-4" />
-                          </Button>
-                        )}
+                                                 {resume.status === "error" && (
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={handleRetry}
+                             className="h-8 w-8 p-0 hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-200 hover:scale-110"
+                           >
+                             <RotateCcw className="w-4 h-4" />
+                           </Button>
+                         )}
 
                         <Button
                           variant="ghost"
