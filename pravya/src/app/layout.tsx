@@ -1,8 +1,10 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./provider";
-
+// Just import the main Providers component
+import { Providers } from "./provider"; // Corrected the filename to 'providers'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +31,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        {/* This is all you need! */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
