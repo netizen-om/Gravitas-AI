@@ -15,6 +15,10 @@ export async function GET(req: Request) {
             userId : session.user.id
         }
     })
+    console.log(session.user.id);
+    
+    console.log(res);
+    
 
     return NextResponse.json({ success: true, resume : res });
 }

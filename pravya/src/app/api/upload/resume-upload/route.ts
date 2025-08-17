@@ -8,17 +8,17 @@ import { resumeAnalyseQueue, resumeProcessingQueue } from "@/lib/queues";
 
 export async function POST(req: Request) {
   try {
-    // const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
 
-    // if (!session || !session.user?.email) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
-
-    const session = {
-      user : {
-        id : "cmdtwaovc0000wfagrbld46w3"
-      }
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // const session = {
+    //   user : {
+    //     id : "cmdtwaovc0000wfagrbld46w3"
+    //   }
+    // }
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
