@@ -79,6 +79,8 @@ export default function ResumeUploadPage() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentQuote, setCurrentQuote] = useState(0)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [resumes, setResumes] = useState<Resume[]>([
     {
       id: "1",
@@ -137,13 +139,31 @@ export default function ResumeUploadPage() {
     const files = Array.from(e.dataTransfer.files)
     if (files.length > 0) {
       const file = files[0]
-      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-        setUploadedFile({
-          name: file.name,
-          size: file.size,
-          file: file,
-        })
+      
+      // Clear any previous messages
+      setErrorMessage(null)
+      setSuccessMessage(null)
+      
+      // Validate file type
+      if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+        setErrorMessage("Please drop a PDF file")
+        setTimeout(() => setErrorMessage(null), 3000)
+        return
       }
+      
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024 // 10MB in bytes
+      if (file.size > maxSize) {
+        setErrorMessage("Please select a file smaller than 10MB")
+        setTimeout(() => setErrorMessage(null), 3000)
+        return
+      }
+      
+      setUploadedFile({
+        name: file.name,
+        size: file.size,
+        file: file,
+      })
     }
   }, [])
 
@@ -151,6 +171,26 @@ export default function ResumeUploadPage() {
     const files = e.target.files
     if (files && files.length > 0) {
       const file = files[0]
+      
+      // Clear any previous messages
+      setErrorMessage(null)
+      setSuccessMessage(null)
+      
+      // Validate file type
+      if (file.type !== "application/pdf" && !file.name.endsWith(".pdf")) {
+        setErrorMessage("Please select a PDF file")
+        setTimeout(() => setErrorMessage(null), 3000)
+        return
+      }
+      
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024 // 10MB in bytes
+      if (file.size > maxSize) {
+        setErrorMessage("Please select a file smaller than 10MB")
+        setTimeout(() => setErrorMessage(null), 3000)
+        return
+      }
+      
       setUploadedFile({
         name: file.name,
         size: file.size,
@@ -162,47 +202,100 @@ export default function ResumeUploadPage() {
   const removeFile = () => {
     setUploadedFile(null)
     setUploadProgress(0)
+    setErrorMessage(null)
+    setSuccessMessage(null)
   }
 
   const handleUpload = async () => {
     if (!uploadedFile) return
 
+    // Clear any previous messages
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    
     setIsUploading(true)
     setUploadProgress(0)
 
-    // Simulate upload progress
-    const uploadInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(uploadInterval)
-          setIsUploading(false)
-          setIsAnalyzing(true)
+    try {
+      // Create FormData to send the file
+      const formData = new FormData()
+      formData.append('file', uploadedFile.file)
 
-          // Add new resume to list
-          const newResume: Resume = {
-            id: Date.now().toString(),
-            filename: uploadedFile.name,
-            uploadDate: new Date().toISOString().split("T")[0],
-            status: "analyzing",
-            size: formatFileSize(uploadedFile.size),
+      // Simulate upload progress while making the actual API call
+      const uploadInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(uploadInterval)
+            return 90
           }
-          setResumes((prev) => [newResume, ...prev])
+          return prev + 10
+        })
+      }, 200)
 
-          // Simulate analysis completion
-          setTimeout(() => {
-            setIsAnalyzing(false)
-            setResumes((prev) =>
-              prev.map((resume) => (resume.id === newResume.id ? { ...resume, status: "completed" as const } : resume)),
-            )
-            setUploadedFile(null)
-            setUploadProgress(0)
-          }, 8000)
-
-          return 100
-        }
-        return prev + 10
+      // Make the actual API call
+      const response = await fetch('/api/upload/resume-upload', {
+        method: 'POST',
+        body: formData,
       })
-    }, 200)
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      
+      // Complete the progress bar
+      setUploadProgress(100)
+      clearInterval(uploadInterval)
+      
+      setIsUploading(false)
+      setIsAnalyzing(true)
+      
+      // Show success message
+      setSuccessMessage("Resume uploaded successfully! Starting analysis...")
+      setTimeout(() => setSuccessMessage(null), 5000)
+
+      // Add new resume to list
+      const newResume: Resume = {
+        id: result.resume?.id || Date.now().toString(),
+        filename: uploadedFile.name,
+        uploadDate: new Date().toISOString().split("T")[0],
+        status: "analyzing",
+        size: formatFileSize(uploadedFile.size),
+      }
+      setResumes((prev) => [newResume, ...prev])
+
+      // Simulate analysis completion (this would be replaced with real-time updates from the queue)
+      setTimeout(() => {
+        setIsAnalyzing(false)
+        setResumes((prev) =>
+          prev.map((resume) => (resume.id === newResume.id ? { ...resume, status: "completed" as const } : resume)),
+        )
+        setUploadedFile(null)
+        setUploadProgress(0)
+      }, 8000)
+
+    } catch (error) {
+      console.error('Upload error:', error)
+      setIsUploading(false)
+      setUploadProgress(0)
+      
+      // Add error resume to list
+      const errorResume: Resume = {
+        id: Date.now().toString(),
+        filename: uploadedFile.name,
+        uploadDate: new Date().toISOString().split("T")[0],
+        status: "error",
+        size: formatFileSize(uploadedFile.size),
+      }
+      setResumes((prev) => [errorResume, ...prev])
+      
+      // Set error message for user display
+      setErrorMessage(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => setErrorMessage(null), 5000)
+    }
   }
 
   const handleRetry = (id: string) => {
@@ -308,6 +401,26 @@ export default function ResumeUploadPage() {
               </div>
             )}
 
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+                <div className="flex items-center justify-center space-x-2 text-red-400">
+                  <AlertCircle className="w-5 h-5" />
+                  <p className="font-medium">{errorMessage}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {successMessage && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 text-center animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+                <div className="flex items-center justify-center space-x-2 text-green-400">
+                  <CheckCircle className="w-5 h-5" />
+                  <p className="font-medium">{successMessage}</p>
+                </div>
+              </div>
+            )}
+
             {/* Analysis Feedback */}
             {isAnalyzing && (
               <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 text-center space-y-4 border border-purple-500/20">
@@ -327,7 +440,19 @@ export default function ResumeUploadPage() {
                 disabled={!uploadedFile || isUploading || isAnalyzing}
                 className="flex-1 h-12 text-base font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
               >
-                {isUploading ? "Uploading..." : isAnalyzing ? "Analyzing..." : "Upload & Continue"}
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  "Upload & Continue"
+                )}
               </Button>
 
               <Button
