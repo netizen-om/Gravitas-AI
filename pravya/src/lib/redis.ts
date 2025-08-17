@@ -7,16 +7,9 @@ export const redis = new Redis({
   password: process.env.REDIS_PASSWORD,
 });
 
-// Redis Pub-Sub for real-time status updates
-export const redisPubSub = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-});
-
 // Subscribe to resume status updates
 export const subscribeToResumeUpdates = (callback: (data: any) => void) => {
-  const subscriber = redisPubSub.duplicate();
+  const subscriber = redis.duplicate();
   
   subscriber.subscribe('resume-status-update', (err, count) => {
     if (err) {
@@ -41,7 +34,7 @@ export const subscribeToResumeUpdates = (callback: (data: any) => void) => {
 // Publish resume status updates
 export const publishResumeUpdate = async (resumeId: string, status: any) => {
   try {
-    await redisPubSub.publish('resume-status-update', JSON.stringify({
+    await redis.publish('resume-status-update', JSON.stringify({
       resumeId,
       ...status,
       timestamp: new Date().toISOString()

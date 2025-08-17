@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
         }
       });
 
-      // Handle client disconnect
       req.signal.addEventListener('abort', () => {
         subscriber.quit();
         controller.close();
