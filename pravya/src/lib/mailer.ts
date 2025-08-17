@@ -1,12 +1,12 @@
 import nodemailer from "nodemailer";
 
-// Create a transporter using Mailtrap credentials
+// Create a transporter using Gmail credentials
 export const transporter = nodemailer.createTransport({
   service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
-      },
+  auth: {
+    user: process.env.EMAIL_SERVER_USER,
+    pass: process.env.EMAIL_SERVER_PASSWORD,
+  },
 });
 
 // Email sending function
@@ -23,12 +23,6 @@ export async function sendEmail({
 }) {
   try {
     console.log("Attempting to send email to:", to);
-    console.log("Mailtrap config:", {
-      host: process.env.MAILTRAP_HOST,
-      port: process.env.MAILTRAP_PORT || 587,
-      user: process.env.MAILTRAP_USER ? "***" : "NOT SET",
-      pass: process.env.MAILTRAP_PASS ? "***" : "NOT SET"
-    });
     
     const info = await transporter.sendMail({
       from: process.env.EMAIL_SERVER_USER,

@@ -13,7 +13,8 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
-interface PravyaAiMagicLinkEmailProps {
+// Renamed interface to match the component name
+interface VerifyEmailTemplateProps {
   magicLink?: string;
 }
 
@@ -21,12 +22,12 @@ const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : 'http://localhost:3000';
 
-export const PravyaAiMagicLinkEmail = ({
+export const VerifyEmailTemplate = ({
   magicLink,
-}: PravyaAiMagicLinkEmailProps) => (
+}: VerifyEmailTemplateProps) => (
   <Html>
     <Head />
-    <Preview>Your Magic Link for Pravya AI</Preview>
+    <Preview>Verify Your Email for Pravya AI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
@@ -48,13 +49,13 @@ export const PravyaAiMagicLinkEmail = ({
             </tbody>
           </table>
         </Section>
-        <Heading style={heading}>Verfiy your email</Heading>
+        <Heading style={heading}>Verify your email</Heading>
         <Section style={body}>
           <Text style={paragraph}>
             Click the button below to securely verify your account.
           </Text>
           <Button style={button} href={magicLink}>
-            Verify email
+            Verify Email
           </Button>
           <Text style={subtext}>
             If you didn’t request this, please ignore this email.
@@ -71,11 +72,11 @@ export const PravyaAiMagicLinkEmail = ({
 );
 
 // This is for previewing in the React Email dev server
-PravyaAiMagicLinkEmail.PreviewProps = {
+VerifyEmailTemplate.PreviewProps = {
   magicLink: 'https://example.com', // Changed to a valid placeholder URL
-} as PravyaAiMagicLinkEmailProps;
+} as VerifyEmailTemplateProps; // Correctly cast to the renamed interface
 
-export default PravyaAiMagicLinkEmail;
+export default VerifyEmailTemplate;
 
 const main = {
   backgroundColor: '#f6f9fc',
