@@ -25,9 +25,10 @@ type ResumeAnalysisType = z.infer<typeof AnalysisSchema>;
 const worker = new Worker<ResumeAnalyseJobData>(
   "resume-analyse",
   async (job: Job<ResumeAnalyseJobData>) => {
+    const { fileUrl, resumeId } = job.data;
+    
     try {
       console.log("Job Data: ", job.data);
-      const { fileUrl, resumeId } = job.data;
 
       // 1) Download PDF
       console.log("Downloading from Cloudinary:", fileUrl);
@@ -88,8 +89,43 @@ const worker = new Worker<ResumeAnalyseJobData>(
       });
 
       console.log(`Analysis saved for resume ${resumeId}`);
+
+      // Check if parsing is also complete before setting status to completed
+      // Since both workers run concurrently, we need to ensure both are done
+      const resume = await prisma.resume.findUnique({
+        where: { id: resumeId },
+        select: { status: true }
+      });
+
+      if (resume && resume.status === "parsing") {
+        // Parsing is still in progress, set status to "analyzing" to show analysis is complete
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: "analyzing" }
+        });
+      } else if (resume && resume.status === "analyzing") {
+        // Both parsing and analysis are complete
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: "completed" }
+        });
+      } else {
+        // Analysis is complete, but status might be something else
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: "completed" }
+        });
+      }
+
     } catch (error) {
       console.error("ERROR:", error);
+      
+      // Update status to error if analysis fails
+      await prisma.resume.update({
+        where: { id: resumeId },
+        data: { status: "error" }
+      });
+      
       throw error;
     }
   },

@@ -6,14 +6,21 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import fetch from "node-fetch";
 import { Blob } from "buffer";
 import { getVectorStore } from "./lib/vectorStore";
-
+import { prisma } from "./lib/prisma";
 
 const worker = new Worker(
   "resume-processing",
   async (job) => {
+    const { fileUrl, userId, resumeId } = job.data;
+    
     try {
       console.log("Job Data: ", job.data);
-      const { fileUrl, userId, resumeId } = job.data;
+
+      // Update status to parsing
+      await prisma.resume.update({
+        where: { id: resumeId },
+        data: { status: "parsing" }
+      });
 
       console.log("Downloading from Cloudinary:", fileUrl);
       const response = await fetch(fileUrl);
@@ -42,8 +49,36 @@ const worker = new Worker(
       await store.addDocuments(docsWithMetadata);
       
       console.log("All docs added to Qdrant with metadata");
+
+      // Check if analysis is also complete before setting status
+      // Since both workers run concurrently, we need to ensure both are done
+      const resume = await prisma.resume.findUnique({
+        where: { id: resumeId },
+        select: { status: true }
+      });
+
+      if (resume && resume.status === "analyzing") {
+        // Analysis is complete, set status to completed
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: "completed" }
+        });
+      } else if (resume && resume.status === "parsing") {
+        // Analysis is still in progress, set status to "analyzing" to show parsing is complete
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: "analyzing" }
+        });
+      }
+
     } catch (error) {
       console.error("ERROR:", error);
+      
+      // Update status to error if something goes wrong
+      await prisma.resume.update({
+        where: { id: resumeId },
+        data: { status: "error" }
+      });
     }
   },
   {

@@ -116,7 +116,8 @@ model Resume {
   fileName       String
   publicId       String
   fileUrl        String
-  status         String          @default("uploaded")
+  QdrantStatus   String          @default("uploadeding")
+  AnalysisStatus String          @default("pending")
   qdrantFileId   String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -124,11 +125,11 @@ model Resume {
 }
 
 model ResumeAnalysis {
-  resumeAnalysisId String @id @default(cuid())
-  resumeId         String @unique
-  resume           Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  atsScore Int?
-  analysis Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  resumeAnalysisId String   @id @default(cuid())
+  resumeId         String   @unique
+  resume           Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  atsScore         Int?
+  analysis         Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
