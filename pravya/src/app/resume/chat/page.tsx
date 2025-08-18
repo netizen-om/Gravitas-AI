@@ -1,9 +1,425 @@
-import React from 'react'
+"use client"
 
-function page() {
-  return (
-    <div>page</div>
-  )
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import ReactMarkdown from "react-markdown"
+import { ArrowLeft, Send, Copy, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
+
+interface Message {
+  id: string
+  type: "user" | "bot"
+  content: string
+  timestamp: Date
 }
 
-export default page
+interface Conversation {
+  id: string
+  title: string
+  lastMessage: string
+  timestamp: Date
+}
+
+const statusMessages = ["Analyzing resume…", "Extracting insights…", "Optimizing response…", "Formatting answer…"]
+
+const smartPrompts = [
+  "How can I tailor my resume for Meta?",
+  "What keywords am I missing?",
+  "Suggest bullet points for my project",
+]
+
+const mockConversations: Conversation[] = [
+  {
+    id: "1",
+    title: "Resume Review Session",
+    lastMessage: "Your technical skills section needs improvement...",
+    timestamp: new Date(Date.now() - 86400000),
+  },
+  {
+    id: "2",
+    title: "Career Transition Advice",
+    lastMessage: "Consider highlighting transferable skills...",
+    timestamp: new Date(Date.now() - 172800000),
+  },
+  {
+    id: "3",
+    title: "Interview Preparation",
+    lastMessage: "Practice these behavioral questions...",
+    timestamp: new Date(Date.now() - 259200000),
+  },
+]
+
+export default function ResumeChatbot() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [currentStatusIndex, setCurrentStatusIndex] = useState(0)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const resumeName = "John_Doe_Resume"
+  const atsScore = 87
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  useEffect(() => {
+    if (!isLoading) return
+
+    const interval = setInterval(() => {
+      setCurrentStatusIndex((prev) => (prev + 1) % statusMessages.length)
+    }, 800) // Average of 700-900ms
+
+    return () => clearInterval(interval)
+  }, [isLoading])
+
+  const handleSend = async (messageText?: string) => {
+    const textToSend = messageText || input.trim()
+    if (!textToSend || isLoading) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: "user",
+      content: textToSend,
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+    setInput("")
+    setIsLoading(true)
+    setCurrentStatusIndex(0)
+
+    try {
+      // Simulate API call - replace with your actual endpoint
+      await new Promise((resolve) => setTimeout(resolve, 4000))
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        content: `## Resume Analysis\n\nBased on your question: "${textToSend}"\n\n**Key Insights:**\n- Your experience shows strong **technical leadership**\n- Consider highlighting specific metrics and achievements\n- Skills section could benefit from more specific technologies\n\n**Recommendations:**\n1. Add quantifiable results to each role\n2. Include relevant certifications\n3. Optimize for ATS systems\n\n\`\`\`\nExample: "Led team of 5 developers, increasing deployment frequency by 40%"\n\`\`\`\n\nWould you like me to elaborate on any of these points?`,
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, botMessage])
+    } catch (error) {
+      console.error("Error sending message:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      <header className="sticky top-0 z-10 bg-black">
+        <div className="flex items-center justify-between p-4">
+          <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-neutral-900">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 bg-black border-neutral-800">
+              <div className="py-6">
+                <h2 className="text-lg font-semibold mb-6 text-white">Past Conversations</h2>
+                <div className="space-y-3">
+                  {mockConversations.map((conversation) => (
+                    <motion.div
+                      key={conversation.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="p-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 cursor-pointer transition-colors"
+                    >
+                      <h3 className="font-medium text-white text-sm mb-1">{conversation.title}</h3>
+                      <p className="text-neutral-400 text-xs truncate">{conversation.lastMessage}</p>
+                      <p className="text-neutral-500 text-xs mt-1">{conversation.timestamp.toLocaleDateString()}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex flex-col items-center">
+            <h1 className="text-lg font-bold tracking-tight text-white">Pravya AI</h1>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-neutral-400 to-transparent mt-1 shadow-sm shadow-neutral-400/20" />
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-neutral-900"
+            onClick={() => (window.location.href = "/dashboard")}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="px-4 pb-3">
+          <div className="flex items-center justify-between text-xs text-neutral-400 bg-neutral-950 rounded-lg px-3 py-2">
+            <span>Resume: {resumeName}.pdf</span>
+            <div className="flex items-center space-x-2">
+              <span>ATS Score:</span>
+              <div className="relative w-6 h-6">
+                <div
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: `conic-gradient(from 0deg, #10b981 ${atsScore * 3.6}deg, #374151 ${atsScore * 3.6}deg)`,
+                  }}
+                />
+                <div className="absolute inset-0.5 bg-neutral-950 rounded-full flex items-center justify-center">
+                  <span className="text-[10px] font-medium text-white">{atsScore}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Chat Area */}
+      <main className="flex-1 overflow-y-auto">
+        <AnimatePresence>
+          {messages.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] px-6"
+            >
+              <div className="text-center space-y-8 max-w-2xl w-full">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-4"
+                >
+                  <h2 className="text-3xl font-bold tracking-tight text-white">Pravya AI</h2>
+                  <div className="w-20 h-px bg-gradient-to-r from-transparent via-neutral-400 to-transparent mx-auto shadow-sm shadow-neutral-400/20" />
+                  <p className="text-neutral-400 text-lg">Ask anything about your resume.</p>
+                </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="space-y-4"
+                >
+                  <div className="flex space-x-3 max-w-3xl mx-auto">
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Ask about your resume..."
+                      className="h-16 bg-neutral-900 border-neutral-700 text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-neutral-600 rounded-2xl px-6 text-base shadow-lg flex-1"
+                      disabled={isLoading}
+                    />
+                    <Button
+                      onClick={() => handleSend()}
+                      disabled={!input.trim() || isLoading}
+                      className="h-16 px-6 bg-white text-black hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 rounded-2xl shadow-lg font-medium"
+                    >
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-center space-x-6 text-xs text-neutral-500">
+                    <span>↵ Send</span>
+                    <span>⇧+↵ New line</span>
+                    <span>/ Commands</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="space-y-3"
+                >
+                  <p className="text-neutral-500 text-sm">Try asking:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {smartPrompts.map((prompt, index) => (
+                      <motion.button
+                        key={index}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleSend(prompt)}
+                        className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 text-sm rounded-full border border-neutral-700 transition-colors"
+                        disabled={isLoading}
+                      >
+                        {prompt}
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {messages.length > 0 && (
+            <div className="p-4 space-y-4">
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={cn("flex", message.type === "user" ? "justify-end" : "justify-start")}
+                >
+                  <div
+                    className={cn(
+                      "rounded-2xl p-4 max-w-[80%] shadow-lg",
+                      message.type === "user" ? "bg-white text-black" : "bg-neutral-900 text-white relative",
+                    )}
+                  >
+                    {message.type === "bot" ? (
+                      <div className="relative">
+                        <ReactMarkdown
+                        
+                          className="prose prose-invert prose-sm max-w-none"
+                          components={{
+                            h1: ({ children }) => <h1 className="text-lg font-semibold mb-2">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-lg font-semibold mb-2">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-base font-semibold mb-2">{children}</h3>,
+                            ul: ({ children }) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+                            code: ({ children, className }) => {
+                              const isBlock = className?.includes("language-")
+                              return isBlock ? (
+                                <div className="relative">
+                                  <code className="block bg-neutral-950 border border-neutral-800 font-mono p-3 rounded-xl text-sm overflow-x-auto">
+                                    {children}
+                                  </code>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 h-6 w-6 text-neutral-400 hover:text-white hover:bg-neutral-800"
+                                    onClick={() => copyToClipboard(children as string)}
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <code className="bg-neutral-950 border border-neutral-800 font-mono px-2 py-1 rounded text-sm">
+                                  {children}
+                                </code>
+                              )
+                            },
+                            strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 h-6 w-6 text-neutral-400 hover:text-white hover:bg-neutral-800"
+                          onClick={() => copyToClipboard(message.content)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm">{message.content}</p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex justify-start"
+                  aria-live="polite"
+                >
+                  <div className="bg-neutral-900 text-white rounded-2xl p-4 max-w-[80%] shadow-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex space-x-1">
+                        {[0, 1, 2].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-1.5 h-1.5 bg-gradient-to-r from-white to-neutral-400 rounded-full"
+                            animate={{
+                              scale: [1, 1.2, 1],
+                              opacity: [0.5, 1, 0.5],
+                            }}
+                            transition={{
+                              duration: 1,
+                              repeat: Number.POSITIVE_INFINITY,
+                              delay: i * 0.2,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <motion.p
+                        key={currentStatusIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-sm bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent"
+                      >
+                        {statusMessages[currentStatusIndex]}
+                      </motion.p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          )}
+        </AnimatePresence>
+        <div ref={messagesEndRef} />
+      </main>
+
+      {messages.length > 0 && (
+        <footer className="sticky bottom-0 bg-black border-t border-neutral-800 p-4">
+          <div className="space-y-3">
+            <div className="flex space-x-3 max-w-3xl mx-auto">
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask about your resume..."
+                className="h-14 md:h-16 bg-neutral-900 border-neutral-700 text-white placeholder:text-neutral-400 focus:ring-2 focus:ring-neutral-600 rounded-2xl px-4 text-base shadow-lg flex-1"
+                disabled={isLoading}
+              />
+              <Button
+                onClick={() => handleSend()}
+                disabled={!input.trim() || isLoading}
+                className="h-14 md:h-16 px-6 bg-white text-black hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 rounded-2xl shadow-lg font-medium"
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-center space-x-6 text-xs text-neutral-500">
+              <span>↵ Send</span>
+              <span>⇧+↵ New line</span>
+              <span>/ Commands</span>
+            </div>
+          </div>
+        </footer>
+      )}
+    </div>
+  )
+}
