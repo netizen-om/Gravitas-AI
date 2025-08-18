@@ -295,7 +295,7 @@ export default function ResumeChatbot() {
                       <div className="relative">
                         <ReactMarkdown
                             //@ts-ignore
-                          className="prose prose-invert prose-sm max-w-none"
+                        //   className="prose prose-invert prose-sm max-w-none"
                           components={{
                             h1: ({ children }) => <h1 className="text-lg font-semibold mb-2">{children}</h1>,
                             h2: ({ children }) => <h2 className="text-lg font-semibold mb-2">{children}</h2>,
