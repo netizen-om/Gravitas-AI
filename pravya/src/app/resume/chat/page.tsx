@@ -294,8 +294,6 @@ export default function ResumeChatbot() {
                     {message.type === "bot" ? (
                       <div className="relative">
                         <ReactMarkdown
-                            //@ts-ignore
-                        //   className="prose prose-invert prose-sm max-w-none"
                           components={{
                             h1: ({ children }) => <h1 className="text-lg font-semibold mb-2">{children}</h1>,
                             h2: ({ children }) => <h2 className="text-lg font-semibold mb-2">{children}</h2>,
@@ -339,7 +337,7 @@ export default function ResumeChatbot() {
                         </Button>
                       </div>
                     ) : (
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm text-black">{message.content}</p>
                     )}
                   </div>
                 </motion.div>
