@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useCallback, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -29,6 +30,15 @@ interface Resume {
     analysis?: Record<string, unknown>
   }
 }
+
+const motivationalQuotes = [
+  "Analyzing your unique skills and experience...",
+  "AI tip: Quantify your achievements with specific numbers",
+  "Discovering your career strengths...",
+  "Pro tip: Use action verbs to make your resume stand out",
+  "Evaluating your professional journey...",
+  "Remember: Your resume is your personal brand story",
+]
 
 // Helper function to get overall status
 const getOverallStatus = (resume: Resume): string => {
@@ -112,6 +122,7 @@ export default function ResumeUploadPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [currentQuote, setCurrentQuote] = useState(0)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [resumes, setResumes] = useState<Resume[]>([])
@@ -185,13 +196,15 @@ export default function ResumeUploadPage() {
       console.log('API response:', data)
       
       if (data.success && Array.isArray(data.resume)) {
+        // Sort resumes by creation date (newest first)
         const sortedResumes = data.resume.sort((a: Resume, b: Resume) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
         
+        // Always update the resumes state with the latest data from the server
         setResumes(sortedResumes)
         
-          if (!hasInitialLoad) {
+                 if (!hasInitialLoad) {
            setHasInitialLoad(true)
            console.log('Initial load of resumes:', sortedResumes.map((r: Resume) => ({ 
              fileName: r.fileName, 
@@ -215,9 +228,11 @@ export default function ResumeUploadPage() {
     fetchResumes()
   }, [])
 
+  // Poll for status updates every 10 seconds if there are active resumes
   useEffect(() => {
+    // Only start polling after initial load and if there are active resumes
     if (!hasInitialLoad) {
-      return
+      return // Don't poll until initial load is complete
     }
     
          const hasActiveResumes = resumes.some(resume => 
@@ -225,7 +240,7 @@ export default function ResumeUploadPage() {
      )
     
     if (!hasActiveResumes) {
-      return
+      return // Don't poll if no active resumes
     }
 
     const interval = setInterval(() => {
@@ -235,6 +250,14 @@ export default function ResumeUploadPage() {
     return () => clearInterval(interval)
   }, [resumes, fetchResumes, hasInitialLoad])
 
+  useEffect(() => {
+    if (isAnalyzing) {
+      const interval = setInterval(() => {
+        setCurrentQuote((prev) => (prev + 1) % motivationalQuotes.length)
+      }, 3000)
+      return () => clearInterval(interval)
+    }
+  }, [isAnalyzing])
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
@@ -293,7 +316,8 @@ export default function ResumeUploadPage() {
     const files = e.target.files
     if (files && files.length > 0) {
       const file = files[0]
-    
+      
+      // Clear any previous messages
       setErrorMessage(null)
       setSuccessMessage(null)
       
@@ -330,6 +354,7 @@ export default function ResumeUploadPage() {
   const handleUpload = async () => {
     if (!uploadedFile) return
 
+    // Clear any previous messages
     setErrorMessage(null)
     setSuccessMessage(null)
     
@@ -337,9 +362,11 @@ export default function ResumeUploadPage() {
     setUploadProgress(0)
 
     try {
+      // Create FormData to send the file
       const formData = new FormData()
       formData.append('file', uploadedFile.file)
 
+      // Simulate upload progress while making the actual API call
       const uploadInterval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
@@ -350,6 +377,7 @@ export default function ResumeUploadPage() {
         })
       }, 200)
 
+      // Make the actual API call
       const response = await fetch('/api/upload/resume-upload', {
         method: 'POST',
         body: formData,
@@ -359,45 +387,56 @@ export default function ResumeUploadPage() {
         throw new Error(`Upload failed: ${response.statusText}`)
       }
 
+      // Complete the progress bar
       setUploadProgress(100)
       clearInterval(uploadInterval)
       
       setIsUploading(false)
       setIsAnalyzing(true)
       
+      // Show success message
       setSuccessMessage("Resume uploaded successfully! Starting analysis...")
       setTimeout(() => setSuccessMessage(null), 5000)
 
-      // await fetchResumes()
+      // Refresh the resumes list to get the latest data from server
+      await fetchResumes()
 
-      // setTimeout(() => {
-      //   setIsAnalyzing(false)
-      //   setUploadedFile(null)
-      //   setUploadProgress(0)
-      //   fetchResumes()
-      // }, 8000)
+      // Simulate analysis completion (this would be replaced with real-time updates from the queue)
+      setTimeout(() => {
+        setIsAnalyzing(false)
+        setUploadedFile(null)
+        setUploadProgress(0)
+        // Fetch again to get updated status
+        fetchResumes()
+      }, 8000)
 
     } catch (error) {
       console.error('Upload error:', error)
       setIsUploading(false)
       setUploadProgress(0)
       
+      // Set error message for user display
       setErrorMessage(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
       
+      // Clear error message after 5 seconds
       setTimeout(() => setErrorMessage(null), 5000)
       
+      // Refresh resumes list in case of error too
       fetchResumes()
     }
   }
 
   const handleRetry = () => {
+    // In a real implementation, you would call an API to retry the analysis
+    // For now, we'll simulate it with a timeout and then refresh from server
     setTimeout(() => {
       fetchResumes()
     }, 3000)
   }
 
   const handleDelete = async (id: string) => {
-    
+    // In a real implementation, you would call an API to delete the resume
+    // For now, we'll just remove it from the local state
     setResumes((prev) => prev.filter((resume) => resume.id !== id))
   }
 
@@ -521,7 +560,6 @@ export default function ResumeUploadPage() {
                 </div>
               </div>
             )}
-
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
