@@ -8,7 +8,7 @@ import ReactMarkdown from "react-markdown"
 import { ArrowLeft, Send, Copy, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 interface Message {
@@ -141,8 +141,10 @@ export default function ResumeChatbot() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-80 bg-black border-neutral-800">
+              <SheetHeader>
+                <SheetTitle className="text-lg font-semibold text-white">Past Conversations</SheetTitle>
+              </SheetHeader>
               <div className="py-6">
-                <h2 className="text-lg font-semibold mb-6 text-white">Past Conversations</h2>
                 <div className="space-y-3">
                   {mockConversations.map((conversation) => (
                     <motion.div
