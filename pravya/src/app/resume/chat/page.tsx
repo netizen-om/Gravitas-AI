@@ -294,7 +294,7 @@ export default function ResumeChatbot() {
                     {message.type === "bot" ? (
                       <div className="relative">
                         <ReactMarkdown
-                        
+                            //@ts-ignore
                           className="prose prose-invert prose-sm max-w-none"
                           components={{
                             h1: ({ children }) => <h1 className="text-lg font-semibold mb-2">{children}</h1>,
