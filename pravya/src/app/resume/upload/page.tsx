@@ -5,6 +5,7 @@ import type React from "react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -160,6 +161,8 @@ export default function ResumeUploadPage() {
   const [resumesError, setResumesError] = useState<string | null>(null);
   const [hasInitialLoad, setHasInitialLoad] = useState(false);
   const redisSubscriberRef = useRef<EventSource | null>(null);
+
+  const router = useRouter();
 
   // Redis Pub-Sub for real-time updates
   useEffect(() => {
@@ -788,7 +791,7 @@ export default function ResumeUploadPage() {
                         </Button> */}
 
                         <Button
-                          onClick={}
+                          onClick={() => router.push(`/resume/chat/${resume.id}`)}
                           variant="ghost"
                           className="text-silver-300 text-black bg-white hover:bg-zinc-300 hover:text-black shadow-lg shadow-silver-500/20 transition-all duration-300 ease-in-out transform border border-silver-600/30"
                         >
