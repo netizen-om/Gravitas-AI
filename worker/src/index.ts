@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import cors from "cors";
 import { embedding } from "./lib/embedding";
 import { qdrantClient } from "./lib/qdrant";
 import { google } from "./lib/googleForAISDK";
@@ -13,6 +14,12 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 const PORT = 8000;
 
@@ -61,8 +68,7 @@ app.post("/chat/:resumeId", async (req, res) => {
       typeof analysisRecord.analysis !== "object" ||
       analysisRecord.analysis === null
     ) {
-      // want to perfrom error handling
-      res.status(500).json({ message: "analysis Record not found" });
+      return res.status(500).json({ message: "analysis Record not found" });
     }
     const fullAnalysis = analysisRecord!.analysis as AnalysisJson;
     // return { analysisContext: fullAnalysis };
@@ -77,7 +83,7 @@ app.post("/chat/:resumeId", async (req, res) => {
     ${JSON.stringify(fullAnalysis, null, 2)}
     
     ## Relevant Resume Excerpts:
-    ${searchResult}
+    ${JSON.stringify(searchResult, null, 2)}
     
     Answer:`;
     // const generation = await model.invoke(prompt);
