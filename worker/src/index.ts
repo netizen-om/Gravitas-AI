@@ -71,6 +71,8 @@ app.post("/chat/:resumeId", async (req, res) => {
       return res.status(500).json({ message: "analysis Record not found" });
     }
     const fullAnalysis = analysisRecord!.analysis as AnalysisJson;
+    console.log("FULL ANALYSUIS : ", fullAnalysis);
+    
     // return { analysisContext: fullAnalysis };
 
     const prompt = `You are a helpful and encouraging resume assistant. Answer the user's question based on the provided context.
