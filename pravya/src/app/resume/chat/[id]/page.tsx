@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { useParams } from "next/navigation"
 
 interface Message {
   id: string
@@ -62,9 +63,10 @@ export default function ResumeChatbot() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const resumeName = "John_Doe_Resume"
-  const atsScore = 87
+  const { id: resumeId } = useParams<{ id: string }>()
+  const [resumeName, setResumeName] = useState<string>("")
+  const [atsScore, setAtsScore] = useState<number>(0)
+  const [isDetailsLoading, setIsDetailsLoading] = useState<boolean>(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -84,9 +86,43 @@ export default function ResumeChatbot() {
     return () => clearInterval(interval)
   }, [isLoading])
 
+  useEffect(() => {
+    const fetchResumeDetails = async () => {
+      if (!resumeId) return
+      try {
+        setIsDetailsLoading(true)
+        const res = await fetch("/api/resume/get-resume-detail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resumeId }),
+          credentials: "include",
+        })
+        if (!res.ok) {
+          throw new Error("Failed to fetch resume details")
+        }
+        const data = await res.json()
+        const fileName: string | undefined = data?.resumeDetails?.fileName
+        const score: number | undefined = data?.resumeDetails?.ResumeAnalysis?.atsScore
+        if (fileName) {
+          const withoutExt = fileName.replace(/\.[^/.]+$/, "")
+          setResumeName(withoutExt)
+        }
+        if (typeof score === "number") {
+          setAtsScore(score)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsDetailsLoading(false)
+      }
+    }
+    fetchResumeDetails()
+  }, [resumeId])
+
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || input.trim()
     if (!textToSend || isLoading) return
+    if (!resumeId) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -101,13 +137,22 @@ export default function ResumeChatbot() {
     setCurrentStatusIndex(0)
 
     try {
-      // Simulate API call - replace with your actual endpoint
-      await new Promise((resolve) => setTimeout(resolve, 4000))
+      const res = await fetch(`http://localhost:8000/chat/${resumeId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: textToSend }),
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(errText || "Chat service error")
+      }
+      const data = await res.json()
+      const answer: string = data?.answer ?? "I'm sorry, I couldn't generate a response."
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
-        content: `## Resume Analysis\n\nBased on your question: "${textToSend}"\n\n**Key Insights:**\n- Your experience shows strong **technical leadership**\n- Consider highlighting specific metrics and achievements\n- Skills section could benefit from more specific technologies\n\n**Recommendations:**\n1. Add quantifiable results to each role\n2. Include relevant certifications\n3. Optimize for ATS systems\n\n\`\`\`\nExample: "Led team of 5 developers, increasing deployment frequency by 40%"\n\`\`\`\n\nWould you like me to elaborate on any of these points?`,
+        content: answer,
         timestamp: new Date(),
       }
 
@@ -180,7 +225,7 @@ export default function ResumeChatbot() {
 
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between text-xs text-neutral-400 bg-neutral-950 rounded-lg px-3 py-2">
-            <span>Resume: {resumeName}.pdf</span>
+            <span>Resume: {resumeName ? `${resumeName}.pdf` : isDetailsLoading ? "Loading…" : "Unknown"}</span>
             <div className="flex items-center space-x-2">
               <span>ATS Score:</span>
               <div className="relative w-6 h-6">
