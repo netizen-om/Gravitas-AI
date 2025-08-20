@@ -16,7 +16,6 @@ const navigation = [
   { name: "Performance Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Learning Hub", href: "/learning", icon: BookOpen },
   { name: "Manage Profile", href: "/profile", icon: User },
-  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {

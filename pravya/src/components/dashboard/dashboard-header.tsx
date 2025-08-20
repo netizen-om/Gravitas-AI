@@ -123,11 +123,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-neutral-900">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-neutral-800" />
+          
               <DropdownMenuItem
                 className="text-white hover:bg-neutral-900"
                 onClick={handleSignOut}
