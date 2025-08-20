@@ -769,7 +769,6 @@ export default function ResumeUploadPage() {
                             <Download className="w-4 h-4" />
                           </Button>
                         )}
-
                         {getOverallStatus(resume) === "error" && (
                           <Button
                             variant="ghost"
@@ -780,7 +779,6 @@ export default function ResumeUploadPage() {
                             <RotateCcw className="w-4 h-4" />
                           </Button>
                         )}
-
                         {/* <Button
                           variant="ghost"
                           size="sm"
@@ -789,14 +787,26 @@ export default function ResumeUploadPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button> */}
-
+                        {getOverallStatus(resume) === "completed" && (
                         <Button
-                          onClick={() => router.push(`/resume/chat/${resume.id}`)}
+                          onClick={() =>
+                            router.push(`/resume/chat/${resume.id}`)
+                          }
                           variant="ghost"
                           className="text-silver-300 text-black bg-white hover:bg-zinc-300 hover:text-black shadow-lg shadow-silver-500/20 transition-all duration-300 ease-in-out transform border border-silver-600/30"
                         >
                           Chat
                         </Button>
+                        )}
+                        {/* <Button
+                          onClick={() =>
+                            router.push(`/resume/chat/${resume.id}`)
+                          }
+                          variant="ghost"
+                          className="text-silver-300 text-black bg-white hover:bg-zinc-300 hover:text-black shadow-lg shadow-silver-500/20 transition-all duration-300 ease-in-out transform border border-silver-600/30"
+                        >
+                          Chat
+                        </Button> */}
                       </div>
                     </div>
                   </div>
