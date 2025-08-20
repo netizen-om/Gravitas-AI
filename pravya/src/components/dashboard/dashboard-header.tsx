@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Menu,
   User,
@@ -19,14 +19,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MobileSidebar } from "./mobile-sidebar";
-import { useSidebar } from "./sidebar-context";
+import { SidebarProvider, useSidebar } from "./sidebar-context";
+import React from "react";
+import { signOut } from "next-auth/react";
 
 interface DashboardHeaderProps {
   session: {
     user: {
+      id: string;
       name: string;
-      email: string;
-      image?: string;
+      email?: string | null;
+      image?: string | null;
+      emailVerified?: boolean;
+      password?: string | null;
     };
   };
 }
@@ -36,15 +41,20 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
   const { sidebarOpen, setSidebarOpen } = useSidebar();
 
   const handleSignOut = () => {
-    // Replace with actual NextAuth signOut
-    console.log("Sign out");
+    signOut()
   };
+
+  useEffect(() => {
+    console.log(session.user);
+    
+  }, [])
+  const user = session.user
 
   return (
     <>
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-neutral-800">
         <div className="flex items-center justify-between px-6 py-4">
-          {/* Left: Menu buttons */}
+          
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -70,7 +80,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
             </Button>
           </div>
 
-          {/* Center: Brand */}
+          
           <div className="flex-1 flex justify-center lg:justify-start">
             <h1 className="text-xl font-bold text-white">
               Pravya AI
@@ -78,7 +88,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
             </h1>
           </div>
 
-          {/* Right: User menu */}
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

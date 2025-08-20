@@ -6,6 +6,7 @@ import { LayoutDashboard, Upload, Play, History, BarChart3, BookOpen, User, Sett
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "./sidebar-context"
+import { signOut } from "next-auth/react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -23,8 +24,7 @@ export function DashboardSidebar() {
   const { sidebarOpen } = useSidebar()
 
   const handleSignOut = () => {
-    // Replace with actual NextAuth signOut
-    console.log("Sign out")
+    signOut()
   }
 
   return (

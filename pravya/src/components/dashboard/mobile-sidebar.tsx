@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { signOut } from "next-auth/react"
+import type { Session } from "next-auth"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -23,21 +25,14 @@ const navigation = [
 interface MobileSidebarProps {
   open: boolean
   onClose: () => void
-  session: {
-    user: {
-      name: string
-      email: string
-      image?: string
-    }
-  }
+  session: Session
 }
 
 export function MobileSidebar({ open, onClose, session }: MobileSidebarProps) {
   const pathname = usePathname()
 
   const handleSignOut = () => {
-    // Replace with actual NextAuth signOut
-    console.log("Sign out")
+    signOut()
     onClose()
   }
 

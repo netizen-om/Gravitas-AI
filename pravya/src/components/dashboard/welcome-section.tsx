@@ -5,15 +5,10 @@ import { Play, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
+import type { Session } from "next-auth"
 
 interface WelcomeSectionProps {
-  session: {
-    user: {
-      name: string
-      email: string
-      image?: string
-    }
-  }
+  session: Session
 }
 
 export function WelcomeSection({ session }: WelcomeSectionProps) {
