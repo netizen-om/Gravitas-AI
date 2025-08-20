@@ -143,6 +143,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
       <MobileSidebar
         open={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
+        //@ts-ignore
         session={session}
       />
     </>

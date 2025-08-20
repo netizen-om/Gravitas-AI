@@ -50,6 +50,7 @@ export default async function DashboardPage() {
           } as React.CSSProperties
         }
       >
+        
         <DashboardHeader session={session} />
         <div className="flex">
           <DashboardSidebar />

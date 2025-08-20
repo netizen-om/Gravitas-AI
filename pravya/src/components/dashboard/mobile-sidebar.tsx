@@ -25,7 +25,16 @@ const navigation = [
 interface MobileSidebarProps {
   open: boolean
   onClose: () => void
-  session: Session
+  session: {
+    user: {
+      id: string;
+      name: string;
+      email?: string | null;
+      image?: string | null;
+      emailVerified?: boolean;
+      password?: string | null;
+    };
+  }
 }
 
 export function MobileSidebar({ open, onClose, session }: MobileSidebarProps) {
@@ -44,7 +53,7 @@ export function MobileSidebar({ open, onClose, session }: MobileSidebarProps) {
           <SheetHeader className="p-6 border-b border-neutral-800">
             <div className="flex items-center space-x-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={session.user.image || "/placeholder.svg"} alt={session.user.name} />
+                <AvatarImage src={session.user.image || "/placeholder.svg"} alt={session.user.name!} />
                 <AvatarFallback className="bg-neutral-900 text-white">
                   {session.user.name?.charAt(0) || "U"}
                 </AvatarFallback>
