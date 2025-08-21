@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession, signIn, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,12 +19,21 @@ import {
   Award,
   LogOut,
   Loader2,
+  Link,
 } from "lucide-react"
 import PravyaLogo from "@/components/PravyaLogo"
+import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
+   const router = useRouter();
   const [activeTab, setActiveTab] = useState("Dashboard")
+
+  useEffect(() => {
+    if(activeTab === "Resume") {
+      router.push("/resume/upload")
+    }
+  }, [activeTab])
 
   const practiceTopics = [
     { name: "Data Structures & Algorithms", progress: 78, color: "bg-blue-500" },
@@ -193,7 +202,7 @@ export default function Dashboard() {
 
             {/* Navigation Items */}
             <div className="hidden md:flex items-center space-x-8">
-              {["Dashboard", "Practice", "Reports", "Profile"].map((item) => (
+              {["Dashboard", "Practice", "Resume", "Profile"].map((item) => (
                 <button
                   key={item}
                   onClick={() => setActiveTab(item)}
@@ -211,9 +220,9 @@ export default function Dashboard() {
             {/* User Info & Sign Out */}
             <div className="flex items-center space-x-4">
               <div className="hidden sm:flex items-center space-x-2">
-                {session.user?.image && (
-                  <img src={session.user.image || "/placeholder.svg"} alt="Profile" className="w-8 h-8 rounded-full" />
-                )}
+                {/* {session.user?.image && (
+                  <img src={session.user.image || "/placeholder.svg"} className="w-8 h-8 rounded-full" />
+                )} */}
                 <span className="text-sm text-gray-300">{session.user?.name}</span>
               </div>
               <Button

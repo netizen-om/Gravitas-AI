@@ -52,7 +52,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-neutral-800">
+      <header className="sticky top-0 z-50 bg-transparent backdrop-blur-sm border-b border-neutral-800">
         <div className="flex items-center justify-between px-6 py-4">
           
           <div className="flex items-center gap-2">

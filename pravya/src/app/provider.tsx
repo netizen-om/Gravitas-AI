@@ -11,7 +11,6 @@
     // if (typeof window !== 'undefined') {
     // posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
     //     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    //     disable: process.env.NODE_ENV === 'development',
     //     loaded: (posthog) => {
     //     if (process.env.NODE_ENV === 'development') posthog.debug();
     //     },
@@ -42,8 +41,8 @@
     return (
         <SessionProvider>
         {/* PostHogProvider wraps your app, making PostHog available everywhere */}
-        { /*<PostHogProvider client={posthog}>
-            <PostHogPageview /> */}
+        {/* <PostHogProvider client={posthog}> */}
+            {/* <PostHogPageview /> */}
             {children}
             <Toaster richColors theme="dark" />
         {/* </PostHogProvider> */}
