@@ -5,12 +5,19 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Brain, MessageCircle, Target, Zap } from 'lucide-react'
 import { useRouter } from 'next/navigation';
+import { useEffect } from "react"
 
 
 export default function HeroSection() {
     
     const router = useRouter();
     const { data: session, status } = useSession()
+
+    useEffect(() => {
+
+      console.log("USER IMAGE : ", session?.user);
+    })
+    
 
   return (
     <>
@@ -173,7 +180,7 @@ export default function HeroSection() {
                   <div className="flex items-center space-x-3">
                     {/* User Info */}
                     <div className="flex items-center space-x-2">
-                      {session.user?.image && (
+                      {/* {session.user?.image && (
                         <Image
                           src={session.user.image}
                           alt={session.user.name || "User"}
@@ -181,7 +188,7 @@ export default function HeroSection() {
                           height={32}
                           className="user-avatar"
                         />
-                      )}
+                      )} */}
                       {/* <span className="text-silver-300 text-sm hidden sm:block">
                         {session.user?.name || session.user?.email}
                       </span> */}
