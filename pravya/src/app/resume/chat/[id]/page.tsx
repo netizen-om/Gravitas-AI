@@ -335,7 +335,7 @@ export default function ResumeChatbot() {
                   <div
                     className={cn(
                       "rounded-2xl p-4 max-w-[80%] shadow-lg",
-                      message.type === "user" ? "bg-zinc-800 text-white text-xl" : "bg-neutral-900 text-white relative",
+                      message.type === "user" ? "bg-blue-600 text-white text-xl" : "bg-neutral-900 text-white relative",
                     )}
                   >
                     {message.type === "bot" ? (

@@ -764,7 +764,7 @@ export default function ResumeUploadPage() {
                             size="sm"
                             onClick={() => handleViewResume(resume)}
                             className="h-8 w-8 p-0 hover:bg-primary/20 hover:text-primary transition-all duration-200 hover:scale-110"
-                            title="View Analysis"
+                            title="Download"
                           >
                             <Download className="w-4 h-4" />
                           </Button>
