@@ -334,8 +334,8 @@ export default function ResumeChatbot() {
                 >
                   <div
                     className={cn(
-                      "rounded-2xl p-4 max-w-[80%] shadow-lg",
-                      message.type === "user" ? "bg-blue-600 text-white text-xl" : "bg-neutral-900 text-white relative",
+                      "rounded-2xl p-3 max-w-[80%] shadow-lg",
+                      message.type === "user" ? "bg-[#ECECEC] text-white text-xl" : "bg-neutral-900 text-white relative",
                     )}
                   >
                     {message.type === "bot" ? (
@@ -384,7 +384,7 @@ export default function ResumeChatbot() {
                         </Button>
                       </div>
                     ) : (
-                      <p className=" text-white text-base">{message.content}</p>
+                      <p className=" text-black text-base">{message.content}</p>
                     )}
                   </div>
                 </motion.div>
