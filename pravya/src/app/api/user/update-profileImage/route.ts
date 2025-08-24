@@ -4,6 +4,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prismadb";
 import cloudinary from "@/lib/cloudinary";
 
+type CloudinaryUploadResult = {
+  secure_url: string;
+  public_id: string;
+};
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +27,7 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const result = await new Promise((resolve, reject) => {
+    const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: "Pravya_profile_Image",
@@ -33,7 +38,7 @@ export async function POST(req: Request) {
             console.error("Cloudinary upload error:", error);
             reject(error);
           } else {
-            resolve(result);
+            resolve(result as CloudinaryUploadResult);
           }
         }
       );
