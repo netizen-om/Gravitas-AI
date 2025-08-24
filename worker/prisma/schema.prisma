@@ -19,11 +19,15 @@ model User {
   email         String?  @unique
   emailVerified Boolean?
   image         String?
+  imagePublicId String?
   password      String?
+  isSubscribed  Boolean  @default(false)
+  isDeleted     Boolean  @default(false)
+  bio           String?
 
   accounts   Account[]
   interviews Interview[]
-  payment    payment[]
+  payment    Payment[]
   Resume     Resume[]
 }
 
@@ -41,27 +45,27 @@ model Account {
   id_token          String?
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id]) // changed to reference id
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
 }
 
 model Interview {
-  interviewId   String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id]) // changed to reference id
-  role          String
-  level         String
-  amount        Int
-  techstack     String
-  type          String
-  createdAt     DateTime @default(now())
-  status        String   @default("pending")
-  questionArray String[]
+  interviewId String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id]) // changed to reference id
+  role        String
+  level       String
+  amount      Int
+  techstack   String
+  type        String
+  createdAt   DateTime @default(now())
+  status      String   @default("pending")
+  isDeleted   Boolean  @default(false)
 
   questions Question[]
   feedback  Feedback?
-  audio     Interview_audio?
+  audio     InterviewAudio?
 }
 
 model Question {
@@ -83,18 +87,19 @@ model Feedback {
   confidenceScore  Int
 }
 
-model Interview_audio {
+model InterviewAudio {
   audioId     String    @id @default(uuid())
   interviewId String    @unique
   interview   Interview @relation(fields: [interviewId], references: [interviewId])
 
+  isDeleted  Boolean  @default(false)
   startTime  DateTime
   endTime    DateTime
   transcript String[]
   audioUrl   String
 }
 
-model payment {
+model Payment {
   paymentId         String   @id @default(uuid())
   createdAt         DateTime @default(now())
   userId            String
@@ -114,6 +119,7 @@ model Resume {
   user   User   @relation(fields: [userId], references: [id])
 
   fileName       String
+  isDeleted      Boolean         @default(false)
   publicId       String
   fileUrl        String
   QdrantStatus   String          @default("uploadeding")
