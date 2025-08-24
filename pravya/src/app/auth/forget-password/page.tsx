@@ -6,6 +6,7 @@ import { AuthInput } from "@/components/ui/auth-input";
 import { AuthButton } from "@/components/ui/auth-button";
 import { z } from "zod";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const resetPasswordSchema = z.object({
   password: z.string().min(8, { message: "Password must be at least 8 characters long." }),
@@ -61,7 +62,7 @@ function ForgotPassword() {
 
         if (response.status === 200) {
           toast.success("Password updated successfully!");
-          router.push("/dashboard");
+          router.push("/auth/sign-in");
         }
       } catch (err: any) {
         const errorMessage = err.response?.data?.error || "An unexpected error occurred.";
