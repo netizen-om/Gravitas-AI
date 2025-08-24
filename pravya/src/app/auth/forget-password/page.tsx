@@ -15,6 +15,7 @@ const TITLE_CLASSES = "text-2xl font-semibold text-white mb-6 font-['ABCFavorit'
 
 function ForgotPassword() {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,12 @@ function ForgotPassword() {
       e.preventDefault();
       setError(null);
       const trimmedPassword = password.trim();
+      const trimmedConfirmPassword = confirmPassword.trim();
+
+      if(trimmedConfirmPassword !== trimmedPassword) {
+        toast.error("Both Password Must Match")
+        return;
+      }
 
       try {
         resetPasswordSchema.parse({ password: trimmedPassword });
@@ -74,6 +81,13 @@ function ForgotPassword() {
     []
   );
 
+  const handleConfirmPasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setConfirmPassword(e.target.value);
+    },
+    []
+  );
+
   return (
     <>
       <div className="text-center mb-6">
@@ -89,11 +103,21 @@ function ForgotPassword() {
         
         <AuthInput
           id="password"
-          name="password"
+          name="New password"
           type="password"
           placeholder=" "
           value={password}
           onChange={handlePasswordChange}
+          required
+        />
+
+        <AuthInput
+          id="ConfirmPassword"
+          name="Confirm password"
+          type="password"
+          placeholder=" "
+          value={confirmPassword}
+          onChange={handleConfirmPasswordChange}
           required
         />
 
