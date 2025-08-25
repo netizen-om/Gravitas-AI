@@ -202,38 +202,56 @@ export default function UserSettingsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
+      {/* Navigation Header */}
+      <div className="sticky top-0 z-10 bg-neutral-950/80 backdrop-blur-sm border-b border-neutral-800 md:hidden">
+        <div className="flex items-center justify-between px-4 py-3">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+          >
+            <LeftArrow />
+            <span className="font-medium">Back</span>
+          </Link>
+          <h1 className="text-lg font-semibold">Settings</h1>
+          <div className="w-16" /> {/* Spacer for centering */}
+        </div>
+      </div>
+
+      {/* Desktop Back Button */}
       <Link
         href="/dashboard"
-        className="flex absolute top-6 left-6 z-10 gap-0 gap-y-0 justify-center items-center px-4 h-10 text-sm font-semibold leading-5 rounded-2xl border-solid ease-in-out cursor-pointer select-none border-[0.8px] border-black border-opacity-0 decoration-neutral-400 duration-[0.2s] outline-neutral-400 text-neutral-400 transition-[color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,visibility,content-visibility,overlay,pointer-events]"
+        className="hidden md:flex absolute top-6 left-6 z-10 gap-2 justify-center items-center px-4 h-10 text-sm font-semibold leading-5 rounded-2xl border border-neutral-700 hover:border-neutral-600 text-neutral-400 hover:text-white transition-all duration-200"
       >
         <LeftArrow />
         Home
       </Link>
-      {/* Leave space for drawer at top-left */}
-      <div className="pl-16 pt-4">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-            <p className="text-gray-400">
+
+      {/* Main Content */}
+      <div className="px-4 md:pl-16 md:pt-4">
+        <div className="max-w-4xl mx-auto py-6 md:p-6">
+          {/* Page Header - Hidden on mobile since it's in the nav */}
+          <div className="mb-6 md:mb-8 hidden md:block">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">Account Settings</h1>
+            <p className="text-gray-400 text-sm md:text-base">
               Manage your account preferences and security
             </p>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {/* Profile Image Section */}
             <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader>
-                <CardTitle className="text-white">
+              <CardHeader className="pb-4 md:pb-6">
+                <CardTitle className="text-white text-lg md:text-xl">
                   Update Profile Image
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-gray-400 text-sm">
                   Upload a new profile picture (JPG, PNG, GIF - max 5MB)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleImageUpload} className="space-y-4">
-                  <div className="flex items-center gap-6">
-                    <Avatar className="h-20 w-20">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <Avatar className="h-16 w-16 md:h-20 md:w-20 shrink-0">
                       <AvatarImage
                         src={profileImage || "/placeholder.svg"}
                         alt="Profile"
@@ -242,19 +260,19 @@ export default function UserSettingsPage() {
                         U
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
                       <Input
                         type="file"
                         name="profileImage"
                         accept="image/jpeg,image/png,image/gif"
-                        className="bg-neutral-800 border-neutral-700 text-white file:bg-neutral-700 file:text-white file:border-0 file:rounded-md file:px-4 file:py-0.5 file:mr-4 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20"
+                        className="bg-neutral-800 border-neutral-700 text-white file:bg-neutral-700 file:text-white file:border-0 file:rounded-md file:px-2 md:file:px-4 file:py-1 file:text-xs md:file:text-sm file:mr-2 md:file:mr-4 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20 text-xs md:text-sm"
                       />
                     </div>
                   </div>
                   <Button
                     type="submit"
                     disabled={isLoading.image}
-                    className="bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20"
+                    className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                   >
                     {isLoading.image ? "Uploading..." : "Update Image"}
                   </Button>
@@ -266,16 +284,16 @@ export default function UserSettingsPage() {
 
             {/* Username Section */}
             <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader>
-                <CardTitle className="text-white">Update Username</CardTitle>
-                <CardDescription className="text-gray-400">
+              <CardHeader className="pb-4 md:pb-6">
+                <CardTitle className="text-white text-lg md:text-xl">Update Username</CardTitle>
+                <CardDescription className="text-gray-400 text-sm">
                   Change your display name (minimum 3 characters)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUsernameUpdate} className="space-y-4">
                   <div>
-                    <Label htmlFor="username" className="text-white">
+                    <Label htmlFor="username" className="text-white text-sm md:text-base">
                       Username
                     </Label>
                     <Input
@@ -284,13 +302,13 @@ export default function UserSettingsPage() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your username"
-                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-8 00 focus:ring-2 focus:ring-white/20"
+                      className="mt-2 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                     />
                   </div>
                   <Button
                     type="submit"
                     disabled={isLoading.username}
-                    className="bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20"
+                    className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                   >
                     {isLoading.username ? "Updating..." : "Update Username"}
                   </Button>
@@ -302,16 +320,16 @@ export default function UserSettingsPage() {
 
             {/* Bio Section */}
             <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader>
-                <CardTitle className="text-white">Update Bio</CardTitle>
-                <CardDescription className="text-gray-400">
+              <CardHeader className="pb-4 md:pb-6">
+                <CardTitle className="text-white text-lg md:text-xl">Update Bio</CardTitle>
+                <CardDescription className="text-gray-400 text-sm">
                   Tell others about yourself (max 500 characters)
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleBioUpdate} className="space-y-4">
                   <div>
-                    <Label htmlFor="bio" className="text-white">
+                    <Label htmlFor="bio" className="text-white text-sm md:text-base">
                       Bio
                     </Label>
                     <Textarea
@@ -320,16 +338,16 @@ export default function UserSettingsPage() {
                       onChange={(e) => setBio(e.target.value)}
                       placeholder="Write something about yourself..."
                       maxLength={500}
-                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20 min-h-[100px]"
+                      className="mt-2 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20 min-h-[80px] md:min-h-[100px] text-sm md:text-base resize-none"
                     />
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs md:text-sm text-gray-500 mt-1">
                       {bio.length}/500 characters
                     </p>
                   </div>
                   <Button
                     type="submit"
                     disabled={isLoading.bio}
-                    className="bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20"
+                    className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                   >
                     {isLoading.bio ? "Updating..." : "Update Bio"}
                   </Button>
@@ -341,16 +359,16 @@ export default function UserSettingsPage() {
 
             {/* Password Section */}
             <Card className="bg-neutral-900 border-neutral-800">
-              <CardHeader>
-                <CardTitle className="text-white">Reset Password</CardTitle>
-                <CardDescription className="text-gray-400">
+              <CardHeader className="pb-4 md:pb-6">
+                <CardTitle className="text-white text-lg md:text-xl">Reset Password</CardTitle>
+                <CardDescription className="text-gray-400 text-sm">
                   Update your account password for security
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePasswordReset} className="space-y-4">
                   <div>
-                    <Label htmlFor="currentPassword" className="text-white">
+                    <Label htmlFor="currentPassword" className="text-white text-sm md:text-base">
                       Current Password
                     </Label>
                     <Input
@@ -359,11 +377,11 @@ export default function UserSettingsPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
-                      className="bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20"
+                      className="mt-2 bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="newPassword" className="text-white">
+                    <Label htmlFor="newPassword" className="text-white text-sm md:text-base">
                       New Password
                     </Label>
                     <Input
@@ -372,11 +390,11 @@ export default function UserSettingsPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password"
-                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20"
+                      className="mt-2 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="confirmPassword" className="text-white">
+                    <Label htmlFor="confirmPassword" className="text-white text-sm md:text-base">
                       Confirm New Password
                     </Label>
                     <Input
@@ -385,19 +403,22 @@ export default function UserSettingsPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
-                      className="bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500  focus:ring-2 focus:ring-white/20"
+                      className="mt-2 bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                     />
                   </div>
                   <Button
                     type="submit"
                     disabled={isLoading.password}
-                    className="bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20"
+                    className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 focus:ring-2 focus:ring-white/20 text-sm md:text-base"
                   >
                     {isLoading.password ? "Updating..." : "Reset Password"}
                   </Button>
                 </form>
               </CardContent>
             </Card>
+
+            {/* Bottom spacing for mobile */}
+            <div className="pb-6 md:pb-0" />
           </div>
         </div>
       </div>
