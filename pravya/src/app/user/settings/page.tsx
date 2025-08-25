@@ -265,7 +265,7 @@ export default function UserSettingsPage() {
             <Separator className="bg-gray-800" />
 
             {/* Username Section */}
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-neutral-900 border-neutral-800">
               <CardHeader>
                 <CardTitle className="text-white">Update Username</CardTitle>
                 <CardDescription className="text-gray-400">
@@ -284,7 +284,7 @@ export default function UserSettingsPage() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your username"
-                      className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-white/20"
+                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-8 00 focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   <Button
@@ -301,7 +301,7 @@ export default function UserSettingsPage() {
             <Separator className="bg-gray-800" />
 
             {/* Bio Section */}
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-neutral-900 border-neutral-800">
               <CardHeader>
                 <CardTitle className="text-white">Update Bio</CardTitle>
                 <CardDescription className="text-gray-400">
@@ -320,7 +320,7 @@ export default function UserSettingsPage() {
                       onChange={(e) => setBio(e.target.value)}
                       placeholder="Write something about yourself..."
                       maxLength={500}
-                      className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-white/20 min-h-[100px]"
+                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20 min-h-[100px]"
                     />
                     <p className="text-sm text-gray-500 mt-1">
                       {bio.length}/500 characters
@@ -340,7 +340,7 @@ export default function UserSettingsPage() {
             <Separator className="bg-gray-800" />
 
             {/* Password Section */}
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-neutral-900 border-neutral-800">
               <CardHeader>
                 <CardTitle className="text-white">Reset Password</CardTitle>
                 <CardDescription className="text-gray-400">
@@ -359,7 +359,7 @@ export default function UserSettingsPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
-                      className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-white/20"
+                      className="bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500 focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   <div>
@@ -372,7 +372,7 @@ export default function UserSettingsPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password"
-                      className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-white/20"
+                      className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 hover:bg-neutral-700 focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   <div>
@@ -385,7 +385,7 @@ export default function UserSettingsPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
-                      className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-white/20"
+                      className="bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white placeholder:text-neutral-500  focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   <Button
